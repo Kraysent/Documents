@@ -79,13 +79,28 @@ func (s *Storage) AddDocument(ctx context.Context, attributes map[string]any) (s
 	return objectID.Hex(), nil
 }
 
-func (s *Storage) GetDocumentByID(ctx context.Context, id string) (map[string]any, error) {
+func (s *Storage) GetOneDocument(ctx context.Context, fields map[string]any) (map[string]any, error) {
 	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
 	var result map[string]any
+	var query bson.D
 
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
+	if idAny, ok := fields["id"]; ok {
+		id, ok := idAny.(string)
+		if !ok {
+			return nil, fmt.Errorf("id has the wrong type; must be string")
+		}
+
+		objectID, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, err
+		}
+		query = append(query, bson.E{Key: "_id", Value: objectID})
+		delete(fields, "id")
 	}
-	return result, documentsCollection.FindOne(ctx, bson.D{{"_id", objectID}}).Decode(&result)
+
+	for key, value := range fields {
+		query = append(query, bson.E{Key: key, Value: value})
+	}
+
+	return result, documentsCollection.FindOne(ctx, query).Decode(&result)
 }
