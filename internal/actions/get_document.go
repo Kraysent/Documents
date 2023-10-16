@@ -40,7 +40,7 @@ func attributesToDocument(attributes map[string]any) (*entities.Document, error)
 }
 
 func GetDocumentByID(ctx context.Context, repo *core.Repository, id string) (*entities.Document, *entities.CodedError) {
-	data, err := repo.Storage.DocumentStorage.GetOneDocument(ctx, map[string]any{"id": id})
+	data, err := repo.Storage.DocumentStorage.GetDocument(ctx, map[string]any{"id": id})
 	if err != nil {
 		return nil, entities.DatabaseError(err)
 	}
@@ -56,7 +56,7 @@ func GetDocumentByID(ctx context.Context, repo *core.Repository, id string) (*en
 func GetDocumentByUsernameAndType(
 	ctx context.Context, repo *core.Repository, username string, documentType string,
 ) (*entities.Document, *entities.CodedError) {
-	data, err := repo.Storage.DocumentStorage.GetOneDocument(
+	data, err := repo.Storage.DocumentStorage.GetDocument(
 		ctx, map[string]any{"username": username, "document_type": documentType},
 	)
 	if err != nil {

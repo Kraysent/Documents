@@ -28,6 +28,7 @@ func main() {
 		http.HandleFunc("/api/v1/document/insert", command.Server.InsertDocument)
 		http.HandleFunc("/api/v1/document/get", command.Server.GetDocumentByID)
 		http.HandleFunc("/api/v1/document/get/username", command.Server.GetDocumentByUsernameAndType)
+		http.HandleFunc("/api/v1/document/delete", command.Server.DeleteDocument)
 		if err := http.ListenAndServe(
 			fmt.Sprintf(":%d", command.Repository.Config.Server.Port), nil,
 		); err != nil {
