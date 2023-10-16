@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"documents/internal/actions"
 	"documents/internal/commands"
 	"go.uber.org/zap"
 )
@@ -22,14 +21,19 @@ func main() {
 	done := make(chan error)
 
 	go func() {
-		http.HandleFunc("/api/v1/document/insert", func(writer http.ResponseWriter, request *http.Request) {
-			if err := actions.InsertDocument(ctx, command.Repository); err != nil {
-				writer.Write([]byte(fmt.Sprintf(err.Error())))
-			}
-		})
+		if err := command.Repository.Storage.DocumentStorage.Connect(ctx); err != nil {
+			done <- err
+		}
+
+		http.HandleFunc("/api/v1/document/insert", command.Server.InsertDocument)
+		http.HandleFunc("/api/v1/document/get", command.Server.GetDocumentByID)
 		if err := http.ListenAndServe(
 			fmt.Sprintf(":%d", command.Repository.Config.Server.Port), nil,
 		); err != nil {
+			done <- err
+		}
+
+		if err := command.Repository.Storage.DocumentStorage.Disconnect(ctx); err != nil {
 			done <- err
 		}
 	}()

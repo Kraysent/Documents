@@ -3,6 +3,7 @@ module documents
 go 1.20
 
 require (
+	github.com/gorilla/schema v1.2.0
 	go.mongodb.org/mongo-driver v1.12.1
 	go.uber.org/zap v1.26.0
 	gopkg.in/yaml.v3 v3.0.1

@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -64,18 +66,26 @@ func (s *Storage) Disconnect(ctx context.Context) error {
 }
 
 func (s *Storage) AddDocument(ctx context.Context, attributes map[string]any) (string, error) {
-	if err := s.Connect(ctx); err != nil {
-		return "", err
-	}
-	defer func() {
-		s.Disconnect(ctx)
-	}()
-
 	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
 	res, err := documentsCollection.InsertOne(ctx, attributes)
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf("%s", res), nil
+	objectID, ok := res.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", fmt.Errorf("cannot cast inserted ID to ObjectID: %v", res.InsertedID)
+	}
+	return objectID.Hex(), nil
+}
+
+func (s *Storage) GetDocumentByID(ctx context.Context, id string) (map[string]any, error) {
+	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
+	var result map[string]any
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	return result, documentsCollection.FindOne(ctx, bson.D{{"_id", objectID}}).Decode(&result)
 }

@@ -7,11 +7,13 @@ import (
 
 	"documents/internal/core"
 	"documents/internal/log"
+	"documents/internal/server"
 )
 
 type Command struct {
 	ctx        context.Context
 	Repository *core.Repository
+	Server     *server.Server
 }
 
 func (c *Command) Context() context.Context {
@@ -39,6 +41,8 @@ func (c *Command) Init() error {
 	}
 
 	c.Repository = repo
+
+	c.Server = server.NewServer(repo)
 
 	return log.InitLogger(config.Logging.StdoutPath, config.Logging.StderrPath)
 }

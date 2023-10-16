@@ -2,18 +2,24 @@ package actions
 
 import (
 	"context"
-	"fmt"
 
 	"documents/internal/core"
+	"documents/internal/entities"
 )
 
-func InsertDocument(ctx context.Context, repo *core.Repository) error {
-	id, err := repo.Storage.DocumentStorage.AddDocument(ctx, map[string]any{"test": "lala1", "type": "passport"})
-	if err != nil {
-		return err
+func InsertDocument(ctx context.Context, repo *core.Repository, data entities.Document) (string, *entities.CodedError) {
+	dbData := make(map[string]any)
+	dbData["username"] = data.Username
+	dbData["document_type"] = data.Type
+
+	for key, value := range data.Attributes {
+		dbData[key] = value
 	}
 
-	fmt.Println(id)
+	id, err := repo.Storage.DocumentStorage.AddDocument(ctx, dbData)
+	if err != nil {
+		return "", entities.DatabaseError(err)
+	}
 
-	return nil
+	return id, nil
 }
