@@ -1,2 +1,0 @@
-db.createCollection("documents");
-db.documents.createIndex({"username": 1, "document_type": 1}, {unique: true})

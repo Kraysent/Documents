@@ -5,9 +5,10 @@ import (
 )
 
 type Document struct {
-	Username   string         `json:"username"`
-	Type       string         `json:"document_type"`
-	Attributes map[string]any `json:"attributes"`
+	ID         int64          `json:"id" db:"id"`
+	Username   string         `json:"username" db:"username"`
+	Type       string         `json:"document_type" db:"document_type"`
+	Attributes map[string]any `json:"attributes" db:"attributes"`
 }
 
 func (d *Document) Validate() error {

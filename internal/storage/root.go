@@ -4,28 +4,30 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
+	_ "github.com/lib/pq"
 )
 
 const (
-	CollectionName = "documents"
+	DocumentsTableName          = "documents.t_documents"
+	DocumentsColumnID           = "id"
+	DocumentsColumnUsername     = "username"
+	DocumentsColumnDocumentType = "document_type"
+	DocumentsColumnAttributes   = "attributes"
 )
 
 type Config struct {
-	Hosts        []string `yaml:"hosts"`
-	Username     string   `yaml:"username"`
-	PasswordEnv  string   `yaml:"password_env"`
-	DBName       string   `yaml:"db_name"`
-	CertFilePath string   `yaml:"cert_file_path"`
+	Host        string `yaml:"host"`
+	Port        int    `yaml:"port"`
+	Username    string `yaml:"username"`
+	PasswordEnv string `yaml:"password_env"`
+	DBName      string `yaml:"db_name"`
 }
 
 type Storage struct {
-	client *mongo.Client
+	db     *pgx.Conn
 	config Config
 }
 
@@ -40,97 +42,56 @@ func (s *Storage) Connect(ctx context.Context) error {
 	if !ok {
 		return fmt.Errorf("no DB password specified on %s env", s.config.PasswordEnv)
 	}
-	url := fmt.Sprintf("mongodb://%s:%s@%s/%s?tls=true&tlsCaFile=%s",
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		s.config.Host,
+		s.config.Port,
 		s.config.Username,
 		password,
-		strings.Join(s.config.Hosts, ","),
 		s.config.DBName,
-		s.config.CertFilePath)
+	)
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(url))
+	db, err := pgx.Connect(ctx, dsn)
 	if err != nil {
-		panic(err)
-	}
-
-	if err := client.Ping(ctx, nil); err != nil {
 		return err
 	}
 
-	s.client = client
+	if err := db.Ping(ctx); err != nil {
+		return err
+	}
+
+	s.db = db
 
 	return nil
 }
 
 func (s *Storage) Disconnect(ctx context.Context) error {
-	return s.client.Disconnect(ctx)
+	return s.db.Close(ctx)
 }
 
-func (s *Storage) AddDocument(ctx context.Context, attributes map[string]any) (string, error) {
-	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
-	res, err := documentsCollection.InsertOne(ctx, attributes)
+func (s *Storage) QuerySq(ctx context.Context, query sq.Sqlizer) (pgx.Rows, error) {
+	q, args, err := query.ToSql()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	objectID, ok := res.InsertedID.(primitive.ObjectID)
-	if !ok {
-		return "", fmt.Errorf("cannot cast inserted ID to ObjectID: %v", res.InsertedID)
+	rows, err := s.db.Query(ctx, q, args...)
+	if err != nil {
+		return nil, err
 	}
-	return objectID.Hex(), nil
+
+	return rows, nil
 }
 
-func (s *Storage) RemoveDocument(ctx context.Context, fields map[string]any) (int64, error) {
-	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
-	var query bson.D
-
-	if idAny, ok := fields["id"]; ok {
-		id, ok := idAny.(string)
-		if !ok {
-			return 0, fmt.Errorf("id has the wrong type; must be string")
-		}
-
-		objectID, err := primitive.ObjectIDFromHex(id)
-		if err != nil {
-			return 0, err
-		}
-		query = append(query, bson.E{Key: "_id", Value: objectID})
-		delete(fields, "id")
-	}
-
-	for key, value := range fields {
-		query = append(query, bson.E{Key: key, Value: value})
-	}
-
-	n, err := documentsCollection.DeleteOne(ctx, query)
+func (s *Storage) ExecSq(ctx context.Context, query sq.Sqlizer) (int64, error) {
+	q, args, err := query.ToSql()
 	if err != nil {
 		return 0, err
 	}
 
-	return n.DeletedCount, nil
-}
-
-func (s *Storage) GetDocument(ctx context.Context, fields map[string]any) (map[string]any, error) {
-	documentsCollection := s.client.Database(s.config.DBName).Collection(CollectionName)
-	var result map[string]any
-	var query bson.D
-
-	if idAny, ok := fields["id"]; ok {
-		id, ok := idAny.(string)
-		if !ok {
-			return nil, fmt.Errorf("id has the wrong type; must be string")
-		}
-
-		objectID, err := primitive.ObjectIDFromHex(id)
-		if err != nil {
-			return nil, err
-		}
-		query = append(query, bson.E{Key: "_id", Value: objectID})
-		delete(fields, "id")
+	result, err := s.db.Exec(ctx, q, args...)
+	if err != nil {
+		return 0, err
 	}
 
-	for key, value := range fields {
-		query = append(query, bson.E{Key: key, Value: value})
-	}
-
-	return result, documentsCollection.FindOne(ctx, query).Decode(&result)
+	return result.RowsAffected(), nil
 }

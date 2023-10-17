@@ -6,9 +6,8 @@ server:
   port: 8080
 
 storage:
-  hosts:
-    - rc1a-fbd6flp6bw3aakyu.mdb.yandexcloud.net:27018
-  username: superuser
+  host: localhost
+  port: 5432
+  username: documents
   password_env: DBPASSWORD
   db_name: documents
-  cert_file_path: "/Users/kraysent/.mongodb/root.crt"
