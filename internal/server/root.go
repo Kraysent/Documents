@@ -10,16 +10,56 @@ import (
 	"go.uber.org/zap"
 )
 
-type Server struct {
-	repo *core.Repository
+type CommonHandler struct {
+	Path     string
+	Method   string
+	Function func(*http.Request, *core.Repository) (any, error)
 }
 
-func NewServer(repo *core.Repository) *Server {
-	return &Server{repo: repo}
+func (c CommonHandler) GetHandler(repo *core.Repository) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != c.Method {
+			handle404(w)
+			return
+		}
+
+		data, err := c.Function(r, repo)
+		if err != nil {
+			handleError(w, err)
+			return
+		}
+
+		if err := handleOK(w, data); err != nil {
+			handleError(w, err)
+			return
+		}
+	}
 }
 
-func (s *Server) handleError(writer http.ResponseWriter, err *entities.CodedError) {
-	writer.WriteHeader(err.HTTPCode)
+func handle404(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNotFound)
+
+	data, intErr := json.Marshal(map[string]any{
+		"message": "Not Found",
+	})
+	if intErr != nil {
+		log.Warn("error during 404 response", zap.Error(intErr))
+		return
+	}
+
+	if _, intErr := w.Write(data); intErr != nil {
+		log.Warn("error during 404 response", zap.Error(intErr))
+		return
+	}
+}
+
+func handleError(writer http.ResponseWriter, err error) {
+	codedErr, ok := err.(entities.CodedError)
+	if !ok {
+		codedErr = *entities.InternalError(err)
+	}
+
+	writer.WriteHeader(codedErr.HTTPCode)
 
 	data, intErr := json.Marshal(err)
 	if intErr != nil {
@@ -41,7 +81,7 @@ func (s *Server) handleError(writer http.ResponseWriter, err *entities.CodedErro
 	log.Warn("error during request", zap.Any("error", err))
 }
 
-func (s *Server) handleOK(writer http.ResponseWriter, data any) error {
+func handleOK(writer http.ResponseWriter, data any) error {
 	writer.WriteHeader(http.StatusOK)
 
 	response, err := json.Marshal(entities.NewResponse(data))

@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"documents/internal/commands"
+	"documents/internal/server"
+	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )
 
@@ -25,12 +27,14 @@ func main() {
 			done <- err
 		}
 
-		http.HandleFunc("/api/v1/document/insert", command.Server.InsertDocument)
-		http.HandleFunc("/api/v1/document/get", command.Server.GetDocumentByID)
-		http.HandleFunc("/api/v1/document/get/username", command.Server.GetDocumentByUsernameAndType)
-		http.HandleFunc("/api/v1/document/delete", command.Server.DeleteDocument)
+		router := chi.NewRouter()
+
+		for _, handler := range server.GetHandlers() {
+			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
+		}
+
 		if err := http.ListenAndServe(
-			fmt.Sprintf(":%d", command.Repository.Config.Server.Port), nil,
+			fmt.Sprintf(":%d", command.Repository.Config.Server.Port), router,
 		); err != nil {
 			done <- err
 		}

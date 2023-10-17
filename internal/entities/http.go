@@ -16,7 +16,7 @@ type CodedError struct {
 	Message  string `json:"message"`
 }
 
-func (e *CodedError) Error() string {
+func (e CodedError) Error() string {
 	return e.Message
 }
 
