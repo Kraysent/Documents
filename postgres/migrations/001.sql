@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS documents;
 
 CREATE TABLE IF NOT EXISTS documents.t_documents (
-    id SERIAL PRIMARY KEY,
+    id BYTEA PRIMARY KEY,
     username TEXT NOT NULL,
     document_type TEXT NOT NULL,
     attributes JSONB

@@ -3,17 +3,24 @@ package actions
 import (
 	"context"
 
+	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/entities"
+	"documents/internal/storage"
 )
 
 func DeleteDocument(
-	ctx context.Context, repo *core.Repository, username string, documentType string,
-) (map[string]any, *entities.CodedError) {
-	n, err := repo.Storage.DocumentStorage.RemoveDocument(ctx, map[string]any{"username": username, "document_type": documentType})
+	ctx context.Context, repo *core.Repository, request schema.DeleteDocumentRequest,
+) (*schema.DeleteDocumentResponse, *entities.CodedError) {
+	n, err := repo.Storage.DocumentStorage.RemoveDocument(ctx,
+		map[string]any{
+			storage.DocumentsColumnUsername:     request.Username,
+			storage.DocumentsColumnDocumentType: request.Type,
+		},
+	)
 	if err != nil {
 		return nil, entities.DatabaseError(err)
 	}
 
-	return map[string]any{"deleted_number": n}, nil
+	return &schema.DeleteDocumentResponse{DeletedNumber: n}, nil
 }

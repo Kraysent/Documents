@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -12,39 +13,44 @@ import (
 
 func (s *Storage) AddDocument(
 	ctx context.Context, username, documentType string, attributes map[string]any,
-) (rowsAffected int64, err error) {
+) (docID string, err error) {
 	attrBytes, err := json.Marshal(attributes)
 	if err != nil {
-		return 0, err
+		return "", err
+	}
+
+	id, err := randomHex(s.config.PrimaryKeyLength)
+	if err != nil {
+		return "", err
 	}
 
 	query := sq.Insert(DocumentsTableName).
-		Columns(DocumentsColumnUsername, DocumentsColumnDocumentType, DocumentsColumnAttributes).
-		Values(username, documentType, attrBytes).
+		Columns(DocumentsColumnID, DocumentsColumnUsername, DocumentsColumnDocumentType, DocumentsColumnAttributes).
+		Values(id, username, documentType, attrBytes).
 		PlaceholderFormat(sq.Dollar).
 		Suffix(fmt.Sprintf("RETURNING %s", DocumentsColumnID))
 
 	rows, err := s.QuerySq(ctx, query)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	defer func() {
 		rows.Close()
 		err = rows.Err()
 	}()
 
-	var documentID int64
+	var documentID []byte
 	for rows.Next() {
 		if err := rows.Err(); err != nil {
-			return 0, err
+			return "", err
 		}
 
 		if err := rows.Scan(&documentID); err != nil {
-			return 0, err
+			return "", err
 		}
 	}
 
-	return documentID, nil
+	return hex.EncodeToString(documentID), nil
 }
 
 func (s *Storage) RemoveDocument(ctx context.Context, fields map[string]any) (int64, error) {

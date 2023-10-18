@@ -32,3 +32,9 @@ func (r *GetDocumentByUsernameAndTypeRequest) Validate() error {
 
 	return nil
 }
+
+type GetDocumentResponse struct {
+	ID           string         `json:"id"`
+	DocumentType string         `json:"document_type"`
+	Attributes   map[string]any `json:"attributes"`
+}

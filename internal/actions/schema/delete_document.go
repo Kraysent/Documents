@@ -20,3 +20,7 @@ func (r *DeleteDocumentRequest) Validate() error {
 
 	return nil
 }
+
+type DeleteDocumentResponse struct {
+	DeletedNumber int64 `json:"deleted_number"`
+}

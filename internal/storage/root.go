@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"os"
 
@@ -19,11 +20,12 @@ const (
 )
 
 type Config struct {
-	Host        string `yaml:"host"`
-	Port        int    `yaml:"port"`
-	Username    string `yaml:"username"`
-	PasswordEnv string `yaml:"password_env"`
-	DBName      string `yaml:"db_name"`
+	Host             string `yaml:"host"`
+	Port             int    `yaml:"port"`
+	Username         string `yaml:"username"`
+	PasswordEnv      string `yaml:"password_env"`
+	DBName           string `yaml:"db_name"`
+	PrimaryKeyLength int    `yaml:"key_length"`
 }
 
 type Storage struct {
@@ -32,6 +34,10 @@ type Storage struct {
 }
 
 func NewStorage(config Config) *Storage {
+	if config.PrimaryKeyLength == 0 {
+		config.PrimaryKeyLength = 12
+	}
+
 	return &Storage{
 		config: config,
 	}
@@ -94,4 +100,12 @@ func (s *Storage) ExecSq(ctx context.Context, query sq.Sqlizer) (int64, error) {
 	}
 
 	return result.RowsAffected(), nil
+}
+
+func randomHex(n int) ([]byte, error) {
+	bytes := make([]byte, n)
+	if _, err := rand.Read(bytes); err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }

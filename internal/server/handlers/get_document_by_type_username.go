@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"documents/internal/actions"
+	schema2 "documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/entities"
-	schema2 "documents/internal/server/schema"
 
 	"github.com/gorilla/schema"
 )
@@ -25,7 +25,7 @@ func GetDocumentByUsernameAndType(r *http.Request, repo *core.Repository) (any, 
 		return nil, entities.ValidationError(err)
 	}
 
-	document, cErr := actions.GetDocumentByUsernameAndType(ctx, repo, request.Username, request.Type)
+	document, cErr := actions.GetDocumentByUsernameAndType(ctx, repo, request)
 	if cErr != nil {
 		return nil, cErr
 	}
