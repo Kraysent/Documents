@@ -20,17 +20,6 @@ resource "yandex_mdb_postgresql_cluster" "documents" {
   }
 }
 
-resource "yandex_vpc_network" "_DOCUMENTS_NETS_" {
-  name = "_DOCUMENTS_NETS_"
-}
-
-resource "yandex_vpc_subnet" "_DOCUMENTS_PG_NETS_" {
-  name           = "_DOCUMENTS_PG_NETS_"
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network._DOCUMENTS_NETS_.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
-}
-
 resource "yandex_mdb_postgresql_user" "documents" {
   cluster_id = yandex_mdb_postgresql_cluster.documents.id
   name       = "documents"

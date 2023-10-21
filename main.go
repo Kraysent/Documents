@@ -34,7 +34,7 @@ func main() {
 		}
 
 		if err := http.ListenAndServe(
-			fmt.Sprintf(":%d", command.Repository.Config.Server.Port), router,
+			fmt.Sprintf("0.0.0.0:%d", command.Repository.Config.Server.Port), router,
 		); err != nil {
 			done <- err
 		}

@@ -9,3 +9,6 @@ build-docker:
 
 push-docker:
 	docker push cr.yandex/$(REGISTRY)/documents
+
+deploy:
+	cd infra && ./deploy.sh
