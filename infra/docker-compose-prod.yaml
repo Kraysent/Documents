@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  documents:
+    image: cr.yandex/crp7mjicr08l7dq8o6ek/documents:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DBPASSWORD
+      - CONFIG=./configs/prod.yaml
+    volumes:
+      - ./logs:/logs
+      - ./configs:/app/configs

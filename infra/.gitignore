@@ -4,3 +4,4 @@ auth.sh
 key.json
 terraform.tfstate
 terraform.tfstate.backup
+.env

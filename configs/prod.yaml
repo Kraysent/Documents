@@ -1,0 +1,15 @@
+logging:
+  stdout_path: "/logs/example.log"
+  stderr_path: "/logs/example_err.log"
+
+server:
+  port: 8080
+
+storage:
+  host: c-c9qurglps80g3pihm245.rw.mdb.yandexcloud.net
+  port: 6432
+  username: documents
+  password_env: DBPASSWORD
+  db_name: documentsdb
+  ssl_mode: require
+  ssl_root_cert_path: /.ssl/root.crt

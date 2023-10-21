@@ -25,6 +25,8 @@ type Config struct {
 	Username         string `yaml:"username"`
 	PasswordEnv      string `yaml:"password_env"`
 	DBName           string `yaml:"db_name"`
+	SSLMode          string `yaml:"ssl_mode"`
+	SSLRootCertPath  string `yaml:"ssl_root_cert_path"`
 	PrimaryKeyLength int    `yaml:"key_length"`
 }
 
@@ -48,13 +50,18 @@ func (s *Storage) Connect(ctx context.Context) error {
 	if !ok {
 		return fmt.Errorf("no DB password specified on %s env", s.config.PasswordEnv)
 	}
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		s.config.Host,
 		s.config.Port,
 		s.config.Username,
 		password,
 		s.config.DBName,
+		s.config.SSLMode,
 	)
+
+	if s.config.SSLMode == "require" {
+		dsn += fmt.Sprintf(" sslrootcert=%s", s.config.SSLRootCertPath)
+	}
 
 	db, err := pgx.Connect(ctx, dsn)
 	if err != nil {
