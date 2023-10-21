@@ -1,11 +1,10 @@
-package entities
+package schema
 
 import (
 	"fmt"
 )
 
 type Document struct {
-	ID         []byte         `json:"id" db:"id"`
 	Username   string         `json:"username" db:"username"`
 	Type       string         `json:"document_type" db:"document_type"`
 	Attributes map[string]any `json:"attributes" db:"attributes"`

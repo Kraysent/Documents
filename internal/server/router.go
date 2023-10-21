@@ -16,7 +16,7 @@ func GetHandlers() []CommonHandler {
 		{
 			Path:     "/api/v1/document",
 			Method:   http.MethodGet,
-			Function: handlers.GetDocumentByUsernameAndType,
+			Function: handlers.GetDocumentsByUsernameAndType,
 		},
 		{
 			Path:     "/api/v1/document/id",
@@ -32,6 +32,11 @@ func GetHandlers() []CommonHandler {
 			Path:     "/api/v1/user/documents",
 			Method:   http.MethodGet,
 			Function: handlers.GetUserDocuments,
+		},
+		{
+			Path:     "/api/v1/user",
+			Method:   http.MethodPost,
+			Function: handlers.CreateUser,
 		},
 	}
 }

@@ -1,4 +1,4 @@
-package entities
+package actions
 
 import (
 	"net/http"
@@ -42,12 +42,4 @@ func InternalError(err error) *CodedError {
 		HTTPCode: http.StatusInternalServerError,
 		Message:  err.Error(),
 	}
-}
-
-type HTTPResponse struct {
-	Data any `json:"data"`
-}
-
-func NewResponse(data any) *HTTPResponse {
-	return &HTTPResponse{Data: data}
 }

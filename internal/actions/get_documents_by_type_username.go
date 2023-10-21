@@ -10,26 +10,29 @@ import (
 	"documents/internal/storage/users"
 )
 
-func GetUserDocuments(
-	ctx context.Context, repo *core.Repository, r schema.GetUserDocumentsRequest,
-) (*schema.GetUserDocumentsResponse, error) {
+func GetDocumentsByUsernameAndType(
+	ctx context.Context, repo *core.Repository, r schema.GetDocumentByUsernameAndTypeRequest,
+) (*schema.GetDocumentsResponse, error) {
 	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Username: r.Username})
 	if err != nil {
 		return nil, DatabaseError(err)
 	}
 
-	result, err := repo.Storages.Documents.GetDocuments(ctx, documents.GetDocumentsRequest{
-		Fields: map[string]any{
-			documents.ColumnUserID: res.UserID,
+	data, err := repo.Storages.Documents.GetDocuments(
+		ctx, documents.GetDocumentsRequest{
+			Fields: map[string]any{
+				documents.ColumnUserID:       res.UserID,
+				documents.ColumnDocumentType: r.Type,
+			},
 		},
-	})
+	)
 	if err != nil {
 		return nil, DatabaseError(err)
 	}
 
-	var response schema.GetUserDocumentsResponse
+	var response schema.GetDocumentsResponse
 
-	for _, doc := range result.Documents {
+	for _, doc := range data.Documents {
 		response.Documents = append(response.Documents, schema.GetDocumentResponse{
 			ID:           hex.EncodeToString(doc.ID),
 			DocumentType: doc.Type,

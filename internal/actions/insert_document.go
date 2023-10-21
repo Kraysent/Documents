@@ -3,15 +3,23 @@ package actions
 import (
 	"context"
 
+	"documents/internal/actions/schema"
 	"documents/internal/core"
-	"documents/internal/entities"
+	"documents/internal/storage/users"
 )
 
-func InsertDocument(ctx context.Context, repo *core.Repository, data entities.Document) (string, *entities.CodedError) {
-	id, err := repo.Storage.DocumentStorage.AddDocument(ctx, data.Username, data.Type, data.Attributes)
+func InsertDocument(
+	ctx context.Context, repo *core.Repository, r schema.InsertDocumentRequest,
+) (*schema.InsertDocumentResponse, error) {
+	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Username: r.Username})
 	if err != nil {
-		return "", entities.DatabaseError(err)
+		return nil, DatabaseError(err)
 	}
 
-	return id, nil
+	id, err := repo.Storages.Documents.AddDocument(ctx, res.UserID, r.Type, r.Attributes)
+	if err != nil {
+		return nil, DatabaseError(err)
+	}
+
+	return &schema.InsertDocumentResponse{ID: id}, nil
 }

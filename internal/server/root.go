@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"documents/internal/actions"
 	"documents/internal/core"
-	"documents/internal/entities"
 	"documents/internal/log"
 	"go.uber.org/zap"
 )
@@ -54,9 +54,9 @@ func handle404(w http.ResponseWriter) {
 }
 
 func handleError(writer http.ResponseWriter, err error) {
-	codedErr, ok := err.(entities.CodedError)
+	codedErr, ok := err.(actions.CodedError)
 	if !ok {
-		codedErr = *entities.InternalError(err)
+		codedErr = *actions.InternalError(err)
 	}
 
 	writer.WriteHeader(codedErr.HTTPCode)
@@ -84,7 +84,7 @@ func handleError(writer http.ResponseWriter, err error) {
 func handleOK(writer http.ResponseWriter, data any) error {
 	writer.WriteHeader(http.StatusOK)
 
-	response, err := json.Marshal(entities.NewResponse(data))
+	response, err := json.Marshal(NewResponse(data))
 	if err != nil {
 		return err
 	}

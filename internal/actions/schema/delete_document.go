@@ -1,24 +1,19 @@
 package schema
 
 import (
-	"fmt"
+	"documents/internal/validation"
 )
 
 type DeleteDocumentRequest struct {
-	Username string `schema:"username"`
-	Type     string `schema:"document_type"`
+	ID string `schema:"id"`
 }
 
 func (r *DeleteDocumentRequest) Validate() error {
-	if r.Username == "" {
-		return fmt.Errorf("empty username")
-	}
+	rules := validation.NewRules(
+		validation.StringNotEmpty(r.ID),
+	)
 
-	if r.Type == "" {
-		return fmt.Errorf("empty document_type")
-	}
-
-	return nil
+	return rules.Validate()
 }
 
 type DeleteDocumentResponse struct {

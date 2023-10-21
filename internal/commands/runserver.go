@@ -40,5 +40,17 @@ func (c *Command) Init() error {
 
 	c.Repository = repo
 
+	if err := c.Repository.Storage.Connect(c.Context()); err != nil {
+		return err
+	}
+
 	return log.InitLogger(config.Logging.StdoutPath, config.Logging.StderrPath)
+}
+
+func (c *Command) Cleanup() error {
+	if err := c.Repository.Storage.Disconnect(c.Context()); err != nil {
+		return err
+	}
+
+	return nil
 }

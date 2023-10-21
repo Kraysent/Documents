@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"fmt"
+	"documents/internal/validation"
 )
 
 type GetDocumentByIDRequest struct {
@@ -9,11 +9,17 @@ type GetDocumentByIDRequest struct {
 }
 
 func (r *GetDocumentByIDRequest) Validate() error {
-	if r.ID == "" {
-		return fmt.Errorf("empty id")
-	}
+	rules := validation.NewRules(
+		validation.StringNotEmpty(r.ID),
+	)
 
-	return nil
+	return rules.Validate()
+}
+
+type GetDocumentResponse struct {
+	ID           string         `json:"id"`
+	DocumentType string         `json:"document_type"`
+	Attributes   map[string]any `json:"attributes"`
 }
 
 type GetDocumentByUsernameAndTypeRequest struct {
@@ -22,19 +28,14 @@ type GetDocumentByUsernameAndTypeRequest struct {
 }
 
 func (r *GetDocumentByUsernameAndTypeRequest) Validate() error {
-	if r.Username == "" {
-		return fmt.Errorf("empty username")
-	}
+	rules := validation.NewRules(
+		validation.StringNotEmpty(r.Username),
+		validation.StringNotEmpty(r.Type),
+	)
 
-	if r.Type == "" {
-		return fmt.Errorf("empty document_type")
-	}
-
-	return nil
+	return rules.Validate()
 }
 
-type GetDocumentResponse struct {
-	ID           string         `json:"id"`
-	DocumentType string         `json:"document_type"`
-	Attributes   map[string]any `json:"attributes"`
+type GetDocumentsResponse struct {
+	Documents []GetDocumentResponse `json:"documents"`
 }

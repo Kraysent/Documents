@@ -10,9 +10,9 @@ import (
 	gschema "github.com/gorilla/schema"
 )
 
-func DeleteDocument(r *http.Request, repo *core.Repository) (any, error) {
+func GetDocumentsByUsernameAndType(r *http.Request, repo *core.Repository) (any, error) {
 	ctx := context.Background()
-	var request schema.DeleteDocumentRequest
+	var request schema.GetDocumentByUsernameAndTypeRequest
 	decoder := gschema.NewDecoder()
 
 	if err := decoder.Decode(&request, r.URL.Query()); err != nil {
@@ -23,7 +23,7 @@ func DeleteDocument(r *http.Request, repo *core.Repository) (any, error) {
 		return nil, actions.ValidationError(err)
 	}
 
-	document, cErr := actions.DeleteDocument(ctx, repo, request)
+	document, cErr := actions.GetDocumentsByUsernameAndType(ctx, repo, request)
 	if cErr != nil {
 		return nil, cErr
 	}
