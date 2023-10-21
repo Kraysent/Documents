@@ -28,5 +28,10 @@ func GetHandlers() []CommonHandler {
 			Method:   http.MethodDelete,
 			Function: handlers.DeleteDocument,
 		},
+		{
+			Path:     "/api/v1/user/documents",
+			Method:   http.MethodGet,
+			Function: handlers.GetUserDocuments,
+		},
 	}
 }

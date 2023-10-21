@@ -12,3 +12,5 @@ push-docker:
 
 deploy:
 	cd infra && ./deploy.sh
+
+full-deploy: build-docker push-docker deploy
