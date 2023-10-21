@@ -9,6 +9,7 @@ import (
 	"documents/internal/commands"
 	"documents/internal/server"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
 )
 
@@ -28,6 +29,10 @@ func main() {
 		}
 
 		router := chi.NewRouter()
+		router.Use(middleware.RequestID)
+		router.Use(middleware.Recoverer)
+		router.Use(middleware.Logger)
+		router.Use(middleware.CleanPath)
 
 		for _, handler := range server.GetHandlers() {
 			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
@@ -47,5 +52,4 @@ func main() {
 	if err := <-done; err != nil {
 		log.Fatal("runtime error", zap.Error(err))
 	}
-
 }

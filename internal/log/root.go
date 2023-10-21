@@ -13,7 +13,7 @@ var globalLogger *zap.Logger
 
 func InitLogger(stdoutPath, stderrPath string) error {
 	defaultLogger := zap.L()
-	config := zap.NewProductionConfig()
+	config := zap.NewDevelopmentConfig()
 	config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	config.Development = true
 	config.OutputPaths = []string{"stdout"}
