@@ -4,10 +4,11 @@ const (
 	TableName      = "documents.t_user"
 	ColumnID       = "id"
 	ColumnUsername = "username"
+	ColumnGoogleID = "google_id"
 )
 
 type GetUserRequest struct {
-	Username string
+	Fields map[string]any
 }
 
 type GetUserResult struct {
@@ -16,6 +17,7 @@ type GetUserResult struct {
 
 type CreateUserRequest struct {
 	Username string
+	GoogleID string
 }
 
 type CreateUserResult struct {

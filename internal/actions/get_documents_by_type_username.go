@@ -6,6 +6,7 @@ import (
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
+	"documents/internal/library/web"
 	"documents/internal/storage/documents"
 	"documents/internal/storage/users"
 )
@@ -13,9 +14,11 @@ import (
 func GetDocumentsByUsernameAndType(
 	ctx context.Context, repo *core.Repository, r schema.GetDocumentByUsernameAndTypeRequest,
 ) (*schema.GetDocumentsResponse, error) {
-	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Username: r.Username})
+	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Fields: map[string]any{
+		users.ColumnUsername: r.Username,
+	}})
 	if err != nil {
-		return nil, DatabaseError(err)
+		return nil, web.DatabaseError(err)
 	}
 
 	data, err := repo.Storages.Documents.GetDocuments(
@@ -27,7 +30,7 @@ func GetDocumentsByUsernameAndType(
 		},
 	)
 	if err != nil {
-		return nil, DatabaseError(err)
+		return nil, web.DatabaseError(err)
 	}
 
 	var response schema.GetDocumentsResponse

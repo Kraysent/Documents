@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	libstorage "documents/internal/library/storage"
 	"documents/internal/storage"
 	sq "github.com/Masterminds/squirrel"
 )
@@ -18,12 +19,12 @@ func NewUserStorage(store storage.Storage) *UserStorage {
 }
 
 func (s *UserStorage) GetUser(ctx context.Context, r GetUserRequest) (*GetUserResult, error) {
-	q := sq.Select(ColumnID).
-		From(TableName).
-		Where(sq.Eq{ColumnUsername: r.Username}).
-		PlaceholderFormat(sq.Dollar)
+	selector := libstorage.SqAnd(r.Fields)
 
-	row, err := s.storage.QueryRowSq(ctx, q)
+	row, err := s.storage.QueryRowSq(ctx, sq.Select(ColumnID).
+		From(TableName).
+		Where(selector).
+		PlaceholderFormat(sq.Dollar))
 	if err != nil {
 		return nil, err
 	}
@@ -37,13 +38,11 @@ func (s *UserStorage) GetUser(ctx context.Context, r GetUserRequest) (*GetUserRe
 }
 
 func (s *UserStorage) CreateUser(ctx context.Context, r CreateUserRequest) (*CreateUserResult, error) {
-	q := sq.Insert(TableName).
-		Columns(ColumnUsername).
-		Values(r.Username).
+	row, err := s.storage.QueryRowSq(ctx, sq.Insert(TableName).
+		Columns(ColumnUsername, ColumnGoogleID).
+		Values(r.Username, r.GoogleID).
 		Suffix(fmt.Sprintf("RETURNING %s", ColumnID)).
-		PlaceholderFormat(sq.Dollar)
-
-	row, err := s.storage.QueryRowSq(ctx, q)
+		PlaceholderFormat(sq.Dollar))
 	if err != nil {
 		return nil, err
 	}

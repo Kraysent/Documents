@@ -1,4 +1,4 @@
-package handlers
+package v1
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"documents/internal/actions"
 	"documents/internal/actions/schema"
 	"documents/internal/core"
+	"documents/internal/library/web"
 )
 
 func InsertDocument(r *http.Request, repo *core.Repository) (any, error) {
@@ -17,15 +18,15 @@ func InsertDocument(r *http.Request, repo *core.Repository) (any, error) {
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		return nil, actions.ValidationError(err)
+		return nil, web.ValidationError(err)
 	}
 
 	if err := json.Unmarshal(data, &request); err != nil {
-		return nil, actions.ValidationError(err)
+		return nil, web.ValidationError(err)
 	}
 
 	if err := request.Validate(); err != nil {
-		return nil, actions.ValidationError(err)
+		return nil, web.ValidationError(err)
 	}
 
 	response, cErr := actions.InsertDocument(ctx, repo, request)

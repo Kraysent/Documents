@@ -7,6 +7,7 @@ import (
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
+	"documents/internal/library/web"
 	"documents/internal/storage/documents"
 )
 
@@ -15,18 +16,18 @@ func GetDocumentByID(
 ) (*schema.GetDocumentResponse, error) {
 	idBytes, err := hex.DecodeString(r.ID)
 	if err != nil {
-		return nil, ValidationError(err)
+		return nil, web.ValidationError(err)
 	}
 
 	data, err := repo.Storages.Documents.GetDocuments(ctx,
 		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: idBytes}},
 	)
 	if err != nil {
-		return nil, DatabaseError(err)
+		return nil, web.DatabaseError(err)
 	}
 
 	if len(data.Documents) != 1 {
-		return nil, InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
+		return nil, web.InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
 	}
 
 	return &schema.GetDocumentResponse{

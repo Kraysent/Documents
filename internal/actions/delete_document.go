@@ -6,6 +6,7 @@ import (
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
+	"documents/internal/library/web"
 	"documents/internal/storage/documents"
 )
 
@@ -14,7 +15,7 @@ func DeleteDocument(
 ) (*schema.DeleteDocumentResponse, error) {
 	id, err := hex.DecodeString(r.ID)
 	if err != nil {
-		return nil, ValidationError(err)
+		return nil, web.ValidationError(err)
 	}
 
 	n, err := repo.Storages.Documents.RemoveDocuments(ctx,
@@ -23,7 +24,7 @@ func DeleteDocument(
 		},
 	)
 	if err != nil {
-		return nil, DatabaseError(err)
+		return nil, web.DatabaseError(err)
 	}
 
 	return &schema.DeleteDocumentResponse{DeletedNumber: n}, nil

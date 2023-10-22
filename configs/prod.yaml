@@ -3,6 +3,8 @@ logging:
   stderr_path: "/logs/example_err.log"
 
 server:
+  # TODO: temporary solution until suitable DNS name is not found
+  host: 51.250.78.192.nip.io
   port: 8080
 
 storage:

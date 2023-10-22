@@ -16,4 +16,11 @@ resource "yandex_vpc_subnet" "_DOCUMENTS_VM_NETS_" {
   v4_cidr_blocks = ["10.4.0.0/16"]
 }
 
+resource "yandex_cm_certificate" "documentess-certificate" {
+  name    = "documentess"
+  domains = ["documentess.com", "*.documentess.com"]
 
+  managed {
+    challenge_type = "DNS_CNAME"
+  }
+}

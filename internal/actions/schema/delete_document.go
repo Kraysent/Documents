@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"documents/internal/validation"
+	"documents/internal/library/validation"
 )
 
 type DeleteDocumentRequest struct {

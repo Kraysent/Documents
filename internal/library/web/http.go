@@ -1,4 +1,4 @@
-package server
+package web
 
 type HTTPResponse struct {
 	Data any `json:"data"`

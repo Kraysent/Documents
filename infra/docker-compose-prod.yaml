@@ -6,6 +6,8 @@ services:
       - "8080:8080"
     environment:
       - DBPASSWORD
+      - GOOGLE_OAUTH_CLIENT_ID
+      - GOOGLE_OAUTH_CLIENT_SECRET
       - CONFIG=./configs/prod.yaml
     volumes:
       - ./logs:/logs

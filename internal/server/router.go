@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"documents/internal/server/handlers"
+	v1 "documents/internal/server/handlers/v1"
 )
 
 func GetHandlers() []CommonHandler {
@@ -11,32 +11,32 @@ func GetHandlers() []CommonHandler {
 		{
 			Path:     "/api/v1/document",
 			Method:   http.MethodPost,
-			Function: handlers.InsertDocument,
+			Function: v1.InsertDocument,
 		},
 		{
 			Path:     "/api/v1/document",
 			Method:   http.MethodGet,
-			Function: handlers.GetDocumentsByUsernameAndType,
+			Function: v1.GetDocumentsByUsernameAndType,
 		},
 		{
 			Path:     "/api/v1/document/id",
 			Method:   http.MethodGet,
-			Function: handlers.GetDocumentByID,
+			Function: v1.GetDocumentByID,
 		},
 		{
 			Path:     "/api/v1/document",
 			Method:   http.MethodDelete,
-			Function: handlers.DeleteDocument,
+			Function: v1.DeleteDocument,
 		},
 		{
 			Path:     "/api/v1/user/documents",
 			Method:   http.MethodGet,
-			Function: handlers.GetUserDocuments,
+			Function: v1.GetUserDocuments,
 		},
 		{
 			Path:     "/api/v1/user",
 			Method:   http.MethodPost,
-			Function: handlers.CreateUser,
+			Function: v1.CreateUser,
 		},
 	}
 }
