@@ -18,6 +18,11 @@ func main() {
 	if err := command.Init(); err != nil {
 		log.Fatal("error during initialization", zap.Error(err))
 	}
+	defer func() {
+		if err := command.Cleanup(); err != nil {
+			log.Fatal("runtime error", zap.Error(err))
+		}
+	}()
 
 	done := make(chan error)
 
@@ -27,6 +32,7 @@ func main() {
 		router.Use(middleware.Recoverer)
 		router.Use(middleware.Logger)
 		router.Use(middleware.CleanPath)
+		router.Use(command.Repository.SessionManager.LoadAndSave)
 
 		for _, handler := range server.GetHandlers() {
 			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
@@ -43,9 +49,6 @@ func main() {
 	}()
 
 	if err := <-done; err != nil {
-		if err := command.Cleanup(); err != nil {
-			log.Fatal("runtime error", zap.Error(err))
-		}
 		log.Fatal("runtime error", zap.Error(err))
 	}
 }

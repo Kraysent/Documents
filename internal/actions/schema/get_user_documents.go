@@ -1,19 +1,9 @@
 package schema
 
-import (
-	"documents/internal/library/validation"
-)
-
-type GetUserDocumentsRequest struct {
-	Username string `schema:"username"`
-}
+type GetUserDocumentsRequest struct{}
 
 func (r *GetUserDocumentsRequest) Validate() error {
-	rules := validation.NewRules(
-		validation.StringNotEmpty(r.Username),
-	)
-
-	return rules.Validate()
+	return nil
 }
 
 type GetUserDocumentsResponse struct {

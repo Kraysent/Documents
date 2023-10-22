@@ -1,9 +1,12 @@
 package core
 
 import (
+	"time"
+
 	"documents/internal/storage"
 	"documents/internal/storage/documents"
 	"documents/internal/storage/users"
+	"github.com/alexedwards/scs/v2"
 )
 
 type Repository struct {
@@ -12,7 +15,8 @@ type Repository struct {
 		Documents *documents.DocumentStorage
 		Users     *users.UserStorage
 	}
-	Config *Config
+	SessionManager *scs.SessionManager
+	Config         *Config
 }
 
 func NewRepository(config *Config) (*Repository, error) {
@@ -20,11 +24,12 @@ func NewRepository(config *Config) (*Repository, error) {
 		Config: config,
 	}
 
-	store := storage.NewStorage(config.Storage)
+	repo.Storage = storage.NewStorage(config.Storage)
+	repo.Storages.Documents = documents.NewDocumentStorage(repo.Storage)
+	repo.Storages.Users = users.NewUserStorage(repo.Storage)
 
-	repo.Storage = store
-	repo.Storages.Documents = documents.NewDocumentStorage(store)
-	repo.Storages.Users = users.NewUserStorage(store)
+	repo.SessionManager = scs.New()
+	repo.SessionManager.Lifetime = 24 * time.Hour
 
 	return repo, nil
 }

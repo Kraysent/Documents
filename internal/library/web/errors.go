@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	DatabaseErrorCode   = "DATABASE_ERROR"
-	InternalErrorCode   = "INTERNAL_ERROR"
-	ValidationErrorCode = "VALIDATION_ERROR"
+	DatabaseErrorCode      = "DATABASE_ERROR"
+	InternalErrorCode      = "INTERNAL_ERROR"
+	ValidationErrorCode    = "VALIDATION_ERROR"
+	AuthorizationErrorCode = "AUTHORIZATION_ERROR"
 )
 
 type CodedError struct {
@@ -40,6 +41,14 @@ func InternalError(err error) *CodedError {
 	return &CodedError{
 		Code:     InternalErrorCode,
 		HTTPCode: http.StatusInternalServerError,
+		Message:  err.Error(),
+	}
+}
+
+func AuthorizationError(err error) *CodedError {
+	return &CodedError{
+		Code:     AuthorizationErrorCode,
+		HTTPCode: http.StatusUnauthorized,
 		Message:  err.Error(),
 	}
 }

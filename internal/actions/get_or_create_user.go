@@ -14,20 +14,30 @@ import (
 func GetOrCreateUser(
 	ctx context.Context, repo *core.Repository, r schema.GetOrCreateUserRequest,
 ) (*schema.GetOrCreateUserResponse, error) {
-	_, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Fields: map[string]any{
+	var userID int64
+	var status string
+
+	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Fields: map[string]any{
 		users.ColumnGoogleID: r.GoogleID,
 	}})
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, web.DatabaseError(err)
 	}
+
+	userID = res.UserID
+	status = "found"
+
 	if err != nil {
-		_, err := repo.Storages.Users.CreateUser(ctx, users.CreateUserRequest{Username: r.Email, GoogleID: r.GoogleID})
+		res, err := repo.Storages.Users.CreateUser(ctx, users.CreateUserRequest{Username: r.Email, GoogleID: r.GoogleID})
 		if err != nil {
 			return nil, web.DatabaseError(err)
 		}
 
-		return &schema.GetOrCreateUserResponse{Status: "created"}, nil
+		userID = res.UserID
+		status = "created"
 	}
 
-	return &schema.GetOrCreateUserResponse{Status: "found"}, nil
+	repo.SessionManager.Put(ctx, "user_id", userID)
+
+	return &schema.GetOrCreateUserResponse{Status: status}, nil
 }

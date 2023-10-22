@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 )
 
 func InsertDocument(r *http.Request, repo *core.Repository) (any, error) {
-	ctx := context.Background()
 	var request schema.InsertDocumentRequest
 
 	data, err := io.ReadAll(r.Body)
@@ -29,7 +27,7 @@ func InsertDocument(r *http.Request, repo *core.Repository) (any, error) {
 		return nil, web.ValidationError(err)
 	}
 
-	response, cErr := actions.InsertDocument(ctx, repo, request)
+	response, cErr := actions.InsertDocument(r.Context(), repo, request)
 	if cErr != nil {
 		return nil, cErr
 	}

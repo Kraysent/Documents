@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"context"
 	"net/http"
 
 	"documents/internal/actions"
@@ -12,7 +11,6 @@ import (
 )
 
 func GetDocumentByID(r *http.Request, repo *core.Repository) (any, error) {
-	ctx := context.Background()
 	var request schema.GetDocumentByIDRequest
 	decoder := gschema.NewDecoder()
 
@@ -24,7 +22,7 @@ func GetDocumentByID(r *http.Request, repo *core.Repository) (any, error) {
 		return nil, web.ValidationError(err)
 	}
 
-	document, cErr := actions.GetDocumentByID(ctx, repo, request)
+	document, cErr := actions.GetDocumentByID(r.Context(), repo, request)
 	if cErr != nil {
 		return nil, cErr
 	}

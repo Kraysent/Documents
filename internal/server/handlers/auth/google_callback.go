@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -32,7 +31,7 @@ func getGoogleConfig(host string, port int) *oauth2.Config {
 
 func GetGoogleCallbackHandler(repo *core.Repository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.TODO()
+		ctx := r.Context()
 
 		oauthState, _ := r.Cookie("oauthstate")
 
@@ -77,7 +76,7 @@ func GetGoogleCallbackHandler(repo *core.Repository) func(w http.ResponseWriter,
 
 		status, err := actions.GetOrCreateUser(ctx, repo, request)
 		if err != nil {
-			web.HandleError(w, web.InternalError(err))
+			web.HandleError(w, err)
 			return
 		}
 

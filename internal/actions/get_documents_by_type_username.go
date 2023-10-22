@@ -3,28 +3,26 @@ package actions
 import (
 	"context"
 	"encoding/hex"
+	"fmt"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
 	"documents/internal/storage/documents"
-	"documents/internal/storage/users"
 )
 
 func GetDocumentsByUsernameAndType(
 	ctx context.Context, repo *core.Repository, r schema.GetDocumentByUsernameAndTypeRequest,
 ) (*schema.GetDocumentsResponse, error) {
-	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Fields: map[string]any{
-		users.ColumnUsername: r.Username,
-	}})
-	if err != nil {
-		return nil, web.DatabaseError(err)
+	userID := repo.SessionManager.GetInt64(ctx, "user_id")
+	if userID == 0 {
+		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
 	data, err := repo.Storages.Documents.GetDocuments(
 		ctx, documents.GetDocumentsRequest{
 			Fields: map[string]any{
-				documents.ColumnUserID:       res.UserID,
+				documents.ColumnUserID:       userID,
 				documents.ColumnDocumentType: r.Type,
 			},
 		},

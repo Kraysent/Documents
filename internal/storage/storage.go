@@ -8,6 +8,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Config struct {
@@ -21,7 +22,7 @@ type Config struct {
 }
 
 type storageImpl struct {
-	DB     *pgx.Conn
+	DB     *pgxpool.Pool
 	Config Config
 }
 
@@ -49,22 +50,24 @@ func (s *storageImpl) Connect(ctx context.Context) error {
 		dsn += fmt.Sprintf(" sslrootcert=%s", s.Config.SSLRootCertPath)
 	}
 
-	db, err := pgx.Connect(ctx, dsn)
+	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		return err
 	}
 
-	if err := db.Ping(ctx); err != nil {
+	if err := pool.Ping(ctx); err != nil {
 		return err
 	}
 
-	s.DB = db
+	s.DB = pool
 
 	return nil
 }
 
 func (s *storageImpl) Disconnect(ctx context.Context) error {
-	return s.DB.Close(ctx)
+	s.DB.Close()
+
+	return nil
 }
 
 func (s *storageImpl) QuerySq(ctx context.Context, query sq.Sqlizer) (pgx.Rows, error) {

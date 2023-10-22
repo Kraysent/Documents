@@ -2,24 +2,22 @@ package actions
 
 import (
 	"context"
+	"fmt"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
-	"documents/internal/storage/users"
 )
 
 func InsertDocument(
 	ctx context.Context, repo *core.Repository, r schema.InsertDocumentRequest,
 ) (*schema.InsertDocumentResponse, error) {
-	res, err := repo.Storages.Users.GetUser(ctx, users.GetUserRequest{Fields: map[string]any{
-		users.ColumnUsername: r.Username,
-	}})
-	if err != nil {
-		return nil, web.DatabaseError(err)
+	userID := repo.SessionManager.GetInt64(ctx, "user_id")
+	if userID == 0 {
+		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
-	id, err := repo.Storages.Documents.AddDocument(ctx, res.UserID, r.Type, r.Attributes)
+	id, err := repo.Storages.Documents.AddDocument(ctx, userID, r.Type, r.Attributes)
 	if err != nil {
 		return nil, web.DatabaseError(err)
 	}

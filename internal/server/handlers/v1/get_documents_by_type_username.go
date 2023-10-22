@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"context"
 	"net/http"
 
 	"documents/internal/actions"
@@ -12,7 +11,6 @@ import (
 )
 
 func GetDocumentsByUsernameAndType(r *http.Request, repo *core.Repository) (any, error) {
-	ctx := context.Background()
 	var request schema.GetDocumentByUsernameAndTypeRequest
 	decoder := gschema.NewDecoder()
 
@@ -24,7 +22,7 @@ func GetDocumentsByUsernameAndType(r *http.Request, repo *core.Repository) (any,
 		return nil, web.ValidationError(err)
 	}
 
-	document, cErr := actions.GetDocumentsByUsernameAndType(ctx, repo, request)
+	document, cErr := actions.GetDocumentsByUsernameAndType(r.Context(), repo, request)
 	if cErr != nil {
 		return nil, cErr
 	}

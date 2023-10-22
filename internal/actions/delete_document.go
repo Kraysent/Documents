@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"encoding/hex"
+	"fmt"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
@@ -13,6 +14,11 @@ import (
 func DeleteDocument(
 	ctx context.Context, repo *core.Repository, r schema.DeleteDocumentRequest,
 ) (*schema.DeleteDocumentResponse, error) {
+	userID := repo.SessionManager.GetInt64(ctx, "user_id")
+	if userID == 0 {
+		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
+	}
+
 	id, err := hex.DecodeString(r.ID)
 	if err != nil {
 		return nil, web.ValidationError(err)
