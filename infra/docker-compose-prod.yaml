@@ -3,7 +3,7 @@ services:
   documents:
     image: cr.yandex/crp7mjicr08l7dq8o6ek/documents:latest
     ports:
-      - "8080:8080"
+      - "80:80"
     environment:
       - DBPASSWORD
       - GOOGLE_OAUTH_CLIENT_ID

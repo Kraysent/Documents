@@ -33,6 +33,10 @@ func (c *Command) Init() error {
 		return err
 	}
 
+	if err := log.InitLogger(config.Logging.StdoutPath, config.Logging.StderrPath); err != nil {
+		return err
+	}
+
 	repo, err := core.NewRepository(config)
 	if err != nil {
 		return err
@@ -44,13 +48,15 @@ func (c *Command) Init() error {
 		return err
 	}
 
-	return log.InitLogger(config.Logging.StdoutPath, config.Logging.StderrPath)
+	log.Info("Connected to the database")
+	return nil
 }
 
 func (c *Command) Cleanup() error {
 	if err := c.Repository.Storage.Disconnect(c.Context()); err != nil {
 		return err
 	}
+	log.Info("Disconnected from the database")
 
 	return nil
 }

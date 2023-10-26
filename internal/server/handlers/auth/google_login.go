@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -26,6 +27,14 @@ func GetGoogleLoginHandler(repo *core.Repository) func(w http.ResponseWriter, r 
 		http.SetCookie(w, &cookie)
 
 		url := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port).AuthCodeURL(state)
-		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+
+		bytes, err := json.Marshal(map[string]any{"data": url})
+		if err != nil {
+			web.HandleError(w, web.InternalError(err))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
 	}
 }

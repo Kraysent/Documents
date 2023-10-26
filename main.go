@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"documents/internal/commands"
+	"documents/internal/library/web"
+	"documents/internal/log"
 	"documents/internal/server"
 	"documents/internal/server/handlers/auth"
 	"github.com/go-chi/chi"
@@ -32,6 +33,7 @@ func main() {
 		router.Use(middleware.Recoverer)
 		router.Use(middleware.Logger)
 		router.Use(middleware.CleanPath)
+		router.Use(web.CORSMiddleware)
 		router.Use(command.Repository.SessionManager.LoadAndSave)
 
 		for _, handler := range server.GetHandlers() {
@@ -44,6 +46,7 @@ func main() {
 		if err := http.ListenAndServe(
 			fmt.Sprintf("0.0.0.0:%d", command.Repository.Config.Server.Port), router,
 		); err != nil {
+			log.Info("Stopping server", zap.Int("port", command.Repository.Config.Server.Port))
 			done <- err
 		}
 	}()
