@@ -40,6 +40,8 @@ func InitLogger(stdoutPath, stderrPath string) error {
 
 	globalLogger = logger
 
+	Info("Initialized logger")
+
 	return nil
 }
 
@@ -56,5 +58,6 @@ func Warn(msg string, fields ...zap.Field) {
 }
 
 func Fatal(msg string, fields ...zap.Field) {
+	fmt.Println(msg, fields)
 	globalLogger.Fatal(msg, fields...)
 }

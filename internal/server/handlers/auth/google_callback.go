@@ -43,7 +43,8 @@ func GetGoogleCallbackHandler(repo *core.Repository) func(w http.ResponseWriter,
 			return
 		}
 
-		token, err := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port).Exchange(ctx, r.FormValue("code"))
+		cfg := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port)
+		token, err := cfg.Exchange(ctx, r.FormValue("code"))
 		if err != nil {
 			web.HandleError(w, web.InternalError(err))
 			return
@@ -81,7 +82,8 @@ func GetGoogleCallbackHandler(repo *core.Repository) func(w http.ResponseWriter,
 		}
 
 		log.Info("Obtained user info", zap.Any("status", status))
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("success"))
+
+		url := fmt.Sprintf("http://%s:%d/", repo.Config.Server.Host, repo.Config.Server.Port)
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }

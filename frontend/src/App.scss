@@ -1,0 +1,35 @@
+html,
+body {
+    height: 100%;
+}
+
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+    pointer-events: none;
+}
+
+.textblock {
+    border: solid;
+    float: left;
+    width: 49%;
+    height: 93vh;
+}
+
+.login-section {
+    border: solid;
+    float: right;
+    width: 49%;
+    height: 93vh;
+    position: relative;
+}
+
+.google-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

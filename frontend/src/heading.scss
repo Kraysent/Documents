@@ -1,0 +1,23 @@
+.heading {
+    display: flex;
+    align-items: center;
+    font-size: x-large;
+    border: solid;
+    height: 2em;
+}
+
+.heading-box {
+    background-color: rgb(211, 243, 251);
+    padding: 5px;
+    margin: 5px;
+    border-radius: 7px;
+}
+
+.leftheading {
+    color: blue;
+}
+
+.rightheading {
+    color: cornflowerblue;
+}
+

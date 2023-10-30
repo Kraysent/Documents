@@ -3,9 +3,8 @@ logging:
   stderr_path: "/logs/example_err.log"
 
 server:
-  # TODO: temporary solution until suitable DNS name is found
   host: docarchive.space
-  port: 80
+  port: 8080
 
 storage:
   host: c-c9qurglps80g3pihm245.rw.mdb.yandexcloud.net

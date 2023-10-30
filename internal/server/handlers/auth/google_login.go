@@ -3,12 +3,13 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"documents/internal/core"
 	"documents/internal/library/web"
+	"documents/internal/log"
+	"go.uber.org/zap"
 )
 
 func GetGoogleLoginHandler(repo *core.Repository) func(w http.ResponseWriter, r *http.Request) {
@@ -28,13 +29,7 @@ func GetGoogleLoginHandler(repo *core.Repository) func(w http.ResponseWriter, r 
 
 		url := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port).AuthCodeURL(state)
 
-		bytes, err := json.Marshal(map[string]any{"data": url})
-		if err != nil {
-			web.HandleError(w, web.InternalError(err))
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytes)
+		log.Info("Redirecting", zap.String("to", url))
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }

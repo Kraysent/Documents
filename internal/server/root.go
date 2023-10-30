@@ -15,11 +15,6 @@ type CommonHandler struct {
 
 func (c CommonHandler) GetHandler(repo *core.Repository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != c.Method {
-			web.Handle404(w)
-			return
-		}
-
 		data, err := c.Function(r, repo)
 		if err != nil {
 			web.HandleError(w, err)

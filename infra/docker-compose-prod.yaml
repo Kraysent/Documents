@@ -3,12 +3,16 @@ services:
   documents:
     image: cr.yandex/crp7mjicr08l7dq8o6ek/documents:latest
     ports:
-      - "80:80"
+      - "8080:8080"
     environment:
       - DBPASSWORD
       - GOOGLE_OAUTH_CLIENT_ID
       - GOOGLE_OAUTH_CLIENT_SECRET
-      - CONFIG=./configs/prod.yaml
+      - CONFIG=/app/configs/prod.yaml
     volumes:
       - ./logs:/logs
       - ./configs:/app/configs
+  documents-frontend:
+    image: cr.yandex/crp7mjicr08l7dq8o6ek/documents-frontend:latest
+    ports:
+      - "8081:3000"

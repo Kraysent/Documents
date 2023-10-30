@@ -24,9 +24,6 @@ func GetOrCreateUser(
 		return nil, web.DatabaseError(err)
 	}
 
-	userID = res.UserID
-	status = "found"
-
 	if err != nil {
 		res, err := repo.Storages.Users.CreateUser(ctx, users.CreateUserRequest{Username: r.Email, GoogleID: r.GoogleID})
 		if err != nil {
@@ -36,6 +33,9 @@ func GetOrCreateUser(
 		userID = res.UserID
 		status = "created"
 	}
+
+	userID = res.UserID
+	status = "found"
 
 	repo.SessionManager.Put(ctx, "user_id", userID)
 

@@ -43,6 +43,11 @@ func main() {
 		router.Get("/auth/google/login", auth.GetGoogleLoginHandler(command.Repository))
 		router.Get("/auth/google/callback", auth.GetGoogleCallbackHandler(command.Repository))
 
+		log.Info("Starting server",
+			zap.Int("port", command.Repository.Config.Server.Port),
+			zap.String("url", fmt.Sprintf("http://%s:%d",
+				command.Repository.Config.Server.Host, command.Repository.Config.Server.Port)))
+
 		if err := http.ListenAndServe(
 			fmt.Sprintf("0.0.0.0:%d", command.Repository.Config.Server.Port), router,
 		); err != nil {
@@ -52,6 +57,7 @@ func main() {
 	}()
 
 	if err := <-done; err != nil {
+		fmt.Println(err)
 		log.Fatal("runtime error", zap.Error(err))
 	}
 }
