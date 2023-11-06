@@ -8,10 +8,6 @@ import (
 )
 
 type Config struct {
-	Logging struct {
-		StdoutPath string `yaml:"stdout_path"`
-		StderrPath string `yaml:"stderr_path"`
-	} `yaml:"logging"`
 	Storage storage.Config `yaml:"storage"`
 	Server  struct {
 		Host      string `yaml:"host"`

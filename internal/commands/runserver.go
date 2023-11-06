@@ -33,7 +33,7 @@ func (c *Command) Init() error {
 		return err
 	}
 
-	if err := log.InitLogger(config.Logging.StdoutPath, config.Logging.StderrPath); err != nil {
+	if err := log.InitLogger(); err != nil {
 		return err
 	}
 

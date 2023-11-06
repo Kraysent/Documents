@@ -1,7 +1,3 @@
-logging:
-  stdout_path: "/logs/example.log"
-  stderr_path: "/logs/example_err.log"
-
 server:
   host: docarchive.space
   port: 8080
