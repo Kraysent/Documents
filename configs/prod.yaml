@@ -5,10 +5,13 @@ logging:
 server:
   host: docarchive.space
   port: 8080
+  callbacks:
+    google:
+      redirect_url: http://docarchive.space/api/auth/google/callback
 
 storage:
-  host: c-c9qurglps80g3pihm245.rw.mdb.yandexcloud.net
-  port: 6432
+  hosts:
+    - c-c9qurglps80g3pihm245.rw.mdb.yandexcloud.net:6432
   username: documents
   password_env: DBPASSWORD
   db_name: documentsdb

@@ -40,8 +40,8 @@ func main() {
 			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
 		}
 
-		router.Get("/auth/google/login", auth.GetGoogleLoginHandler(command.Repository))
-		router.Get("/auth/google/callback", auth.GetGoogleCallbackHandler(command.Repository))
+		router.Get("/api/auth/google/login", auth.GetGoogleLoginHandler(command.Repository))
+		router.Get("/api/auth/google/callback", auth.GetGoogleCallbackHandler(command.Repository))
 
 		log.Info("Starting server",
 			zap.Int("port", command.Repository.Config.Server.Port),

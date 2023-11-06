@@ -3,6 +3,16 @@ import './App.scss';
 import './heading.scss';
 import GoogleButton from 'react-google-button';
 
+let host: string;
+
+function setDevEnv() {
+  host = "localhost"
+}
+
+function setProdEnv() {
+  host = "docarchive.space"
+}
+
 const Heading: React.FC = () => {
   return <div className="heading">
     <div className="heading-box">
@@ -24,15 +34,7 @@ const TextBlock: React.FC = () => {
 }
 
 function loginRedirect() {
-  let host = "localhost"
-
-  console.log(`running this process in ${process.env.NODE_ENV} mode`)
-
-  if (process.env.NODE_ENV == "production") {
-    host = "docarchive.space"
-  }
-
-  let url = `http://${host}:8080/auth/google/login`
+  let url = `http://${host}/api/auth/google/login`
   console.log(`redirecting to ${url}`)
 
   window.location.href = url
@@ -44,11 +46,17 @@ const LoginSection: React.FC = () => {
       className="google-button"
       type="dark"
       label="Log in or register"
-      onClick={() => { loginRedirect() }} />
+      onClick={() => {loginRedirect() }} />
   </div>
 }
 
 const App: React.FC = () => {
+  if (process.env.NODE_ENV == "development") {
+    setDevEnv()
+  } else if (process.env.NODE_ENV == "production") {
+    setProdEnv()
+  }
+
   return (
     <div className="App">
       <Heading />

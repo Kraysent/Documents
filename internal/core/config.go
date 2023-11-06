@@ -14,8 +14,13 @@ type Config struct {
 	} `yaml:"logging"`
 	Storage storage.Config `yaml:"storage"`
 	Server  struct {
-		Host string `yaml:"host"`
-		Port int    `yaml:"port"`
+		Host      string `yaml:"host"`
+		Port      int    `yaml:"port"`
+		Callbacks struct {
+			Google struct {
+				RedirectURL string `yaml:"redirect_url"`
+			} `yaml:"google"`
+		} `yaml:"callbacks"`
 	} `yaml:"server"`
 }
 

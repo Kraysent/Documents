@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -12,13 +13,12 @@ import (
 )
 
 type Config struct {
-	Host            string `yaml:"host"`
-	Port            int    `yaml:"port"`
-	Username        string `yaml:"username"`
-	PasswordEnv     string `yaml:"password_env"`
-	DBName          string `yaml:"db_name"`
-	SSLMode         string `yaml:"ssl_mode"`
-	SSLRootCertPath string `yaml:"ssl_root_cert_path"`
+	Hosts           []string `yaml:"hosts"`
+	Username        string   `yaml:"username"`
+	PasswordEnv     string   `yaml:"password_env"`
+	DBName          string   `yaml:"db_name"`
+	SSLMode         string   `yaml:"ssl_mode"`
+	SSLRootCertPath string   `yaml:"ssl_root_cert_path"`
 }
 
 type storageImpl struct {
@@ -37,17 +37,16 @@ func (s *storageImpl) Connect(ctx context.Context) error {
 	if !ok {
 		return fmt.Errorf("no DB password specified on %s env", s.Config.PasswordEnv)
 	}
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		s.Config.Host,
-		s.Config.Port,
+	dsn := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=%s",
 		s.Config.Username,
 		password,
+		strings.Join(s.Config.Hosts, ","),
 		s.Config.DBName,
 		s.Config.SSLMode,
 	)
 
 	if s.Config.SSLMode == "require" {
-		dsn += fmt.Sprintf(" sslrootcert=%s", s.Config.SSLRootCertPath)
+		dsn += fmt.Sprintf("&sslrootcert=%s", s.Config.SSLRootCertPath)
 	}
 
 	pool, err := pgxpool.New(ctx, dsn)
@@ -66,7 +65,6 @@ func (s *storageImpl) Connect(ctx context.Context) error {
 
 func (s *storageImpl) Disconnect(ctx context.Context) error {
 	s.DB.Close()
-
 	return nil
 }
 

@@ -27,7 +27,7 @@ func GetGoogleLoginHandler(repo *core.Repository) func(w http.ResponseWriter, r 
 		cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration}
 		http.SetCookie(w, &cookie)
 
-		url := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port).AuthCodeURL(state)
+		url := getGoogleConfig(repo.Config.Server.Callbacks.Google.RedirectURL).AuthCodeURL(state)
 
 		log.Info("Redirecting", zap.String("to", url))
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)

@@ -1,10 +1,14 @@
 server:
   host: localhost
   port: 8080
+  callbacks:
+    google:
+      redirect_url: http://localhost/api/auth/google/callback
 
 storage:
-  host: localhost
-  port: 5432
+  hosts:
+    - host.docker.internal:5432
+    - localhost:5432
   username: documents
   password_env: DBPASSWORD
   db_name: documents

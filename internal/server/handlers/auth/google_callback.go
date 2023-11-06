@@ -19,9 +19,9 @@ import (
 
 const oauthGoogleUrlAPITemplate = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=%s"
 
-func getGoogleConfig(host string, port int) *oauth2.Config {
+func getGoogleConfig(redirectURL string) *oauth2.Config {
 	return &oauth2.Config{
-		RedirectURL:  fmt.Sprintf("http://%s:%d/auth/google/callback", host, port),
+		RedirectURL:  redirectURL,
 		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
@@ -43,7 +43,7 @@ func GetGoogleCallbackHandler(repo *core.Repository) func(w http.ResponseWriter,
 			return
 		}
 
-		cfg := getGoogleConfig(repo.Config.Server.Host, repo.Config.Server.Port)
+		cfg := getGoogleConfig(repo.Config.Server.Callbacks.Google.RedirectURL)
 		token, err := cfg.Exchange(ctx, r.FormValue("code"))
 		if err != nil {
 			web.HandleError(w, web.InternalError(err))
