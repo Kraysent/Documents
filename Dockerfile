@@ -6,6 +6,7 @@ COPY . .
 RUN go build -o ./documents
 
 FROM ubuntu:latest as runner
+RUN apt update && apt install curl -y
 WORKDIR /app/
 COPY --from=builder /build/documents .
 ADD "https://storage.yandexcloud.net/cloud-certs/CA.pem" "/.ssl/root.crt"
