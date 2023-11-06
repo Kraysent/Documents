@@ -3,8 +3,6 @@ services:
   documents:
     image: cr.yandex/crp7mjicr08l7dq8o6ek/documents:latest
     network_mode: "host"
-#    ports:
-#      - "8080:8080"
     environment:
       - DBPASSWORD
       - GOOGLE_OAUTH_CLIENT_ID
@@ -16,12 +14,8 @@ services:
   documents-frontend:
     image: cr.yandex/crp7mjicr08l7dq8o6ek/documents-frontend:latest
     network_mode: "host"
-#    ports:
-#      - "8081:3000"
   nginx:
     image: nginx
     network_mode: "host"
-#    ports:
-#      - "80:8082"
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf

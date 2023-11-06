@@ -8,7 +8,6 @@ import (
 	"documents/internal/library/web"
 	"documents/internal/log"
 	"documents/internal/server"
-	"documents/internal/server/handlers/auth"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
@@ -40,8 +39,9 @@ func main() {
 			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
 		}
 
-		router.Get("/api/auth/google/login", auth.GetGoogleLoginHandler(command.Repository))
-		router.Get("/api/auth/google/callback", auth.GetGoogleCallbackHandler(command.Repository))
+		for _, handler := range server.GetAuthHandlers() {
+			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
+		}
 
 		log.Info("Starting server",
 			zap.Int("port", command.Repository.Config.Server.Port),

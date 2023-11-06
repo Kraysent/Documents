@@ -12,24 +12,23 @@ import (
 	"go.uber.org/zap"
 )
 
-func GetGoogleLoginHandler(repo *core.Repository) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		b := make([]byte, 16)
+func GoogleLoginHandler(w http.ResponseWriter, r *http.Request, repo *core.Repository) error {
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	b := make([]byte, 16)
 
-		_, err := rand.Read(b)
-		if err != nil {
-			web.HandleError(w, web.InternalError(err))
-			return
-		}
-
-		state := base64.URLEncoding.EncodeToString(b)
-		cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration}
-		http.SetCookie(w, &cookie)
-
-		url := getGoogleConfig(repo.Config.Server.Callbacks.Google.RedirectURL).AuthCodeURL(state)
-
-		log.Info("Redirecting", zap.String("to", url))
-		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	_, err := rand.Read(b)
+	if err != nil {
+		return web.InternalError(err)
 	}
+
+	state := base64.URLEncoding.EncodeToString(b)
+	cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration}
+	http.SetCookie(w, &cookie)
+
+	url := getGoogleConfig(repo.Config.Server.Callbacks.Google.RedirectURL).AuthCodeURL(state)
+
+	log.Info("Redirecting", zap.String("to", url))
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+
+	return nil
 }
