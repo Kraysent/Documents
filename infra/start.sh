@@ -1,1 +1,1 @@
-docker-compose --env-file infra/.env up --detach
+docker-compose --env-file .env up --detach

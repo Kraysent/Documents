@@ -17,12 +17,18 @@ services:
       start_period: 5s
       timeout: 10s
     restart: always
+    logging:
+      driver: loki
+      options:
+        loki-url: "https://${LOKI_USERNAME}:${LOKI_PASSWORD}@logs-prod-eu-west-0.grafana.net/api/prom/push"
   documents-frontend:
     image: cr.yandex/crp7mjicr08l7dq8o6ek/documents-frontend:latest
     depends_on:
       - documents
     network_mode: "host"
     restart: always
+    logging:
+      driver: local
   nginx:
     image: nginx
     network_mode: "host"
@@ -38,3 +44,20 @@ services:
       retries: 3
       start_period: 5s
       timeout: 10s
+    logging:
+      driver: local
+  grafana-agent:
+    image: grafana/agent:latest
+    network_mode: host
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/agent/config.river
+    environment:
+      - AGENT_MODE=flow
+      - GRAFANA_AGENT_USERNAME
+      - GRAFANA_AGENT_PASSWORD
+    volumes:
+      - ./configs/config.river:/etc/agent/config.river
+    logging:
+      driver: local

@@ -10,7 +10,9 @@ import (
 	"documents/internal/server"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -24,9 +26,13 @@ func main() {
 		}
 	}()
 
-	done := make(chan error)
+	g, _ := errgroup.WithContext(command.Context())
 
-	go func() {
+	g.Go(func() error {
+		http.Handle("/metrics", promhttp.Handler())
+		return http.ListenAndServe(":2112", nil)
+	})
+	g.Go(func() error {
 		router := chi.NewRouter()
 		router.Use(middleware.RequestID)
 		router.Use(middleware.Recoverer)
@@ -48,15 +54,12 @@ func main() {
 			zap.String("url", fmt.Sprintf("http://%s:%d",
 				command.Repository.Config.Server.Host, command.Repository.Config.Server.Port)))
 
-		if err := http.ListenAndServe(
+		return http.ListenAndServe(
 			fmt.Sprintf("0.0.0.0:%d", command.Repository.Config.Server.Port), router,
-		); err != nil {
-			log.Info("Stopping server", zap.Int("port", command.Repository.Config.Server.Port))
-			done <- err
-		}
-	}()
+		)
+	})
 
-	if err := <-done; err != nil {
+	if err := g.Wait(); err != nil {
 		fmt.Println(err)
 		log.Fatal("runtime error", zap.Error(err))
 	}
