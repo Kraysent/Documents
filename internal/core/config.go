@@ -13,7 +13,8 @@ type Config struct {
 		Host      string `yaml:"host"`
 		Port      int    `yaml:"port"`
 		Callbacks struct {
-			Google struct {
+			BackRedirectURL string `yaml:"back_redirect_url"`
+			Google          struct {
 				RedirectURL string `yaml:"redirect_url"`
 			} `yaml:"google"`
 		} `yaml:"callbacks"`

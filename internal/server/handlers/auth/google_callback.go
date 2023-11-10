@@ -76,8 +76,7 @@ func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request, repo *core.Re
 
 	log.Info("Obtained user info", zap.Any("status", status))
 
-	url := fmt.Sprintf("http://%s:%d/", repo.Config.Server.Host, repo.Config.Server.Port)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, repo.Config.Server.Callbacks.BackRedirectURL, http.StatusTemporaryRedirect)
 
 	return nil
 }

@@ -3,6 +3,10 @@ REGISTRY = `terraform -chdir=infra/terraform output -raw document-registry-id`
 all:
 	go build .
 
+style:
+	errcheck .
+	go vet
+
 build-docker:
 	docker build --network=host -t documents -f Dockerfile .
 	docker tag documents cr.yandex/$(REGISTRY)/documents

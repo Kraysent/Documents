@@ -2,6 +2,7 @@ server:
   host: localhost
   port: 8080
   callbacks:
+    back_redirect_url: http://localhost/
     google:
       redirect_url: http://localhost/api/auth/google/callback
 

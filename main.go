@@ -35,8 +35,8 @@ func main() {
 	g.Go(func() error {
 		router := chi.NewRouter()
 		router.Use(middleware.RequestID)
-		router.Use(middleware.Recoverer)
 		router.Use(middleware.Logger)
+		router.Use(middleware.Recoverer)
 		router.Use(middleware.CleanPath)
 		router.Use(web.CORSMiddleware)
 		router.Use(command.Repository.SessionManager.LoadAndSave)
