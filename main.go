@@ -8,6 +8,7 @@ import (
 	"documents/internal/library/web"
 	"documents/internal/log"
 	"documents/internal/server"
+	chiprometheus "github.com/766b/chi-prometheus"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -39,6 +40,7 @@ func main() {
 		router.Use(middleware.Recoverer)
 		router.Use(middleware.CleanPath)
 		router.Use(web.CORSMiddleware)
+		router.Use(chiprometheus.NewMiddleware("documents"))
 		router.Use(command.Repository.SessionManager.LoadAndSave)
 
 		for _, handler := range server.GetHandlers() {
