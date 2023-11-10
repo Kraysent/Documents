@@ -16,11 +16,15 @@ resource "yandex_vpc_subnet" "_DOCUMENTS_VM_NETS_" {
   v4_cidr_blocks = ["10.4.0.0/16"]
 }
 
-resource "yandex_cm_certificate" "documentess-certificate" {
-  name    = "documentess"
-  domains = ["documentess.com", "*.documentess.com"]
+data "yandex_cm_certificate_content" "docarchive_cert" {
+  certificate_id = "fpqorhic5ov3967opovp"
+}
 
-  managed {
-    challenge_type = "DNS_CNAME"
-  }
+output "certificate_chain" {
+  value = data.yandex_cm_certificate_content.docarchive_cert.certificates
+}
+
+output "certificate_key" {
+  value     = data.yandex_cm_certificate_content.docarchive_cert.private_key
+  sensitive = true
 }

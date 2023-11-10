@@ -31,7 +31,6 @@ services:
       - documents
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf
-      - ./configs/.well-known:/www/.well-known
     restart: always
     healthcheck:
       test: curl --fail http://localhost:80/ping || exit 1

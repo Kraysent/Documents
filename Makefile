@@ -1,4 +1,4 @@
-REGISTRY = `terraform -chdir=infra output -raw document-registry-id`
+REGISTRY = `terraform -chdir=infra/terraform output -raw document-registry-id`
 
 all:
 	go build .
