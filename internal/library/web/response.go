@@ -25,7 +25,7 @@ func Handle404(w http.ResponseWriter) {
 	}
 }
 
-func HandleError(writer http.ResponseWriter, err error) {
+func HandleError(writer http.ResponseWriter, err error) error {
 	codedErr, ok := err.(CodedError)
 	if !ok {
 		codedErr = *InternalError(err)
@@ -35,22 +35,14 @@ func HandleError(writer http.ResponseWriter, err error) {
 
 	data, intErr := json.Marshal(err)
 	if intErr != nil {
-		log.Warn(
-			"error during handling another error",
-			zap.Any("coded_error", err), zap.Error(intErr),
-		)
-		return
+		return intErr
 	}
 
 	if _, intErr := writer.Write(data); intErr != nil {
-		log.Warn(
-			"error during handling another error",
-			zap.Any("coded_error", err), zap.Error(intErr),
-		)
-		return
+		return intErr
 	}
 
-	log.Warn("error during request", zap.Any("error", err))
+	return nil
 }
 
 func HandleOK(writer http.ResponseWriter, data any) error {
@@ -65,6 +57,5 @@ func HandleOK(writer http.ResponseWriter, data any) error {
 		return err
 	}
 
-	log.Info("response sent", zap.Any("data", data))
 	return nil
 }

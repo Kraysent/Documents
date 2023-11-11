@@ -5,6 +5,8 @@ import (
 
 	"documents/internal/core"
 	"documents/internal/library/web"
+	"documents/internal/log"
+	"go.uber.org/zap"
 )
 
 type CommonHandler struct {
@@ -17,14 +19,41 @@ func (c CommonHandler) GetHandler(repo *core.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := c.Function(r, repo)
 		if err != nil {
-			web.HandleError(w, err)
+			log.Warn("error during request",
+				zap.String("path", c.Path),
+				zap.String("method", c.Method),
+				zap.Any("error", err))
+
+			if intErr := web.HandleError(w, err); intErr != nil {
+				log.Warn("error handling request error",
+					zap.String("path", c.Path),
+					zap.String("method", c.Method),
+					zap.Any("error", intErr))
+			}
+
 			return
 		}
 
 		if err := web.HandleOK(w, data); err != nil {
-			web.HandleError(w, err)
+			log.Warn("error during handling response",
+				zap.String("path", c.Path),
+				zap.String("method", c.Method),
+				zap.Any("error", err))
+
+			if intErr := web.HandleError(w, err); intErr != nil {
+				log.Warn("error handling request sending error",
+					zap.String("path", c.Path),
+					zap.String("method", c.Method),
+					zap.Any("error", intErr))
+			}
+
 			return
 		}
+
+		log.Info("response sent",
+			zap.String("path", c.Path),
+			zap.String("method", c.Method),
+			zap.Any("data", data))
 	}
 }
 
