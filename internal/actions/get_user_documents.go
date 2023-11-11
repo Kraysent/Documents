@@ -28,7 +28,9 @@ func GetUserDocuments(
 		return nil, web.DatabaseError(err)
 	}
 
-	var response schema.GetUserDocumentsResponse
+	response := schema.GetUserDocumentsResponse{
+		Documents: []schema.GetDocumentResponse{},
+	}
 
 	for _, doc := range result.Documents {
 		response.Documents = append(response.Documents, schema.GetDocumentResponse{

@@ -1,10 +1,11 @@
 server:
   host: localhost
   port: 8080
+  cors_origin: http://localhost:3000
   callbacks:
-    back_redirect_url: http://localhost/
+    back_redirect_url: http://localhost:3000/
     google:
-      redirect_url: http://localhost/api/auth/google/callback
+      redirect_url: http://localhost:8080/api/auth/google/callback
 
 storage:
   hosts:

@@ -10,9 +10,10 @@ import (
 type Config struct {
 	Storage storage.Config `yaml:"storage"`
 	Server  struct {
-		Host      string `yaml:"host"`
-		Port      int    `yaml:"port"`
-		Callbacks struct {
+		Host       string `yaml:"host"`
+		Port       int    `yaml:"port"`
+		CORSOrigin string `yaml:"cors_origin"`
+		Callbacks  struct {
 			BackRedirectURL string `yaml:"back_redirect_url"`
 			Google          struct {
 				RedirectURL string `yaml:"redirect_url"`

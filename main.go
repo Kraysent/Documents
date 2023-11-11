@@ -39,7 +39,7 @@ func main() {
 		router.Use(middleware.Logger)
 		router.Use(middleware.Recoverer)
 		router.Use(middleware.CleanPath)
-		router.Use(web.CORSMiddleware)
+		router.Use(web.CORSMiddleware(command.Repository))
 		router.Use(chiprometheus.NewMiddleware("documents"))
 		router.Use(command.Repository.SessionManager.LoadAndSave)
 

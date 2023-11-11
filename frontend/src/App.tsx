@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.scss';
 import './heading.scss';
+import './document-block.scss';
 import GoogleButton from 'react-google-button';
 
-let host: string;
+let apiHost: string;
 
 function setDevEnv() {
-  host = "localhost"
+  apiHost = "http://localhost:8080/api"
 }
 
 function setProdEnv() {
-  host = "docarchive.space"
+  apiHost = "http://docarchive.space/api"
 }
 
 const Heading: React.FC = () => {
@@ -34,7 +35,7 @@ const TextBlock: React.FC = () => {
 }
 
 function loginRedirect() {
-  let url = `http://${host}/api/auth/google/login`
+  let url = `${apiHost}/auth/google/login`
   console.log(`redirecting to ${url}`)
 
   window.location.href = url
@@ -46,22 +47,91 @@ const LoginSection: React.FC = () => {
       className="google-button"
       type="dark"
       label="Log in or register"
-      onClick={() => {loginRedirect() }} />
+      onClick={() => { loginRedirect() }} />
   </div>
 }
 
+class Document {
+  document_type: string
+
+  constructor(document_type: string) {
+    this.document_type = document_type
+  }
+}
+
+class GetUserDocumentsResponse {
+  documents: Document[]
+
+  constructor(documents: Document[]) {
+    this.documents = documents
+  }
+}
+
+interface DocumentBlockProps {
+  key: number
+  document: Document
+}
+
+function DocumentBlock(props: DocumentBlockProps) {
+  return <span className="document-block" key={props.key}>{props.document.document_type}</span>
+}
+
+
 const App: React.FC = () => {
+  const [docs, setDocs] = useState<Document[]>([]);
+  const [mode, setMode] = useState("noauth");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   if (process.env.NODE_ENV == "development") {
     setDevEnv()
   } else if (process.env.NODE_ENV == "production") {
     setProdEnv()
   }
 
+  useEffect(() => {
+    fetch(`${apiHost}/v1/user/documents`, { credentials: 'include' })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `This is an HTTP error: The status is ${response.status}`
+          );
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        let responseData: GetUserDocumentsResponse = data.data
+
+        console.log(JSON.stringify(docs))
+        setLoading(false)
+        setDocs(responseData.documents)
+        setMode("auth")
+      }).catch((err) => {
+        setError(err)
+        console.error(err)
+      })
+  }, [])
+
   return (
     <div className="App">
       <Heading />
-      <TextBlock />
-      <LoginSection />
+      {
+        mode == "noauth" &&
+        <div>
+          <TextBlock />
+          <LoginSection />
+        </div>
+      }
+      {mode == "auth" &&
+        <div className='document-container'>
+          {
+            docs.map((doc, i) => {
+              return <DocumentBlock key={i} document={doc} />
+            })
+          }
+        </div>
+      }
     </div>
   );
 }
