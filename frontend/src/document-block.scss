@@ -1,8 +1,26 @@
 .document-block {
     border: 2px solid black;
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 8px;
     background-color: lightblue;
+    display: flex;
+    flex-direction: row;
+    height: 2em;
+    align-items: center;
+}
+
+.document-id-block {
+    flex: 0.5;
+}
+
+.document-name-block {
+    flex: 2;
+}
+
+.document-attributes-block {
+    flex: 1;
+    white-space: nowrap;
+    overflow: scroll;
 }
 
 .document-container {
