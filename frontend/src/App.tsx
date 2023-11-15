@@ -11,7 +11,7 @@ function setDevEnv() {
 }
 
 function setProdEnv() {
-  apiHost = "http://docarchive.space/api"
+  apiHost = "https://docarchive.space/api"
 }
 
 const Heading: React.FC = () => {

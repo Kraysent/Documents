@@ -2,9 +2,9 @@ server:
   host: docarchive.space
   port: 8080
   callbacks:
-    back_redirect_url: http://docarchive.space/
+    back_redirect_url: https://docarchive.space/
     google:
-      redirect_url: http://docarchive.space/api/auth/google/callback
+      redirect_url: https://docarchive.space/api/auth/google/callback
 
 storage:
   hosts:

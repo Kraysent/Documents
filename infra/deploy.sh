@@ -1,4 +1,7 @@
 SERVER_IP=docarchive.space
+terraform -chdir=terraform output -raw certificate_key | ssh kraysent@$SERVER_IP "cat >~/.ssl/docarchive.space.key"
+terraform -chdir=terraform output -json certificate_chain | jq -r ".[0]" | ssh kraysent@$SERVER_IP "cat >~/.ssl/docarchive.space.crt"
+
 scp docker-compose.yaml kraysent@$SERVER_IP:~/docker-compose.yaml
 scp ../configs/prod.yaml kraysent@$SERVER_IP:~/configs/prod.yaml
 scp .env kraysent@$SERVER_IP:~/.env

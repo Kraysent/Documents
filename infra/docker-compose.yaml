@@ -37,6 +37,8 @@ services:
       - documents
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf
+      - ./.ssl/docarchive.space.key:/etc/ssl/certs/docarchive.space.key
+      - ./.ssl/docarchive.space.crt:/etc/ssl/certs/docarchive.space.crt
     restart: unless-stopped
     healthcheck:
       test: curl --fail http://localhost:80/ping || exit 1
