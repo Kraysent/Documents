@@ -17,23 +17,10 @@ func (r *GetDocumentByIDRequest) Validate() error {
 }
 
 type GetDocumentResponse struct {
-	ID           string         `json:"id"`
-	DocumentType string         `json:"document_type"`
-	Attributes   map[string]any `json:"attributes"`
-}
-
-type GetDocumentByUsernameAndTypeRequest struct {
-	Username string `schema:"username"`
-	Type     string `schema:"document_type"`
-}
-
-func (r *GetDocumentByUsernameAndTypeRequest) Validate() error {
-	rules := validation.NewRules(
-		validation.StringNotEmpty(r.Username),
-		validation.StringNotEmpty(r.Type),
-	)
-
-	return rules.Validate()
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Version     int64  `json:"version"`
+	Description string `json:"description"`
 }
 
 type GetDocumentsResponse struct {

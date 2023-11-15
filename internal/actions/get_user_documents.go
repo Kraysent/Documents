@@ -2,7 +2,6 @@ package actions
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 
 	"documents/internal/actions/schema"
@@ -21,7 +20,7 @@ func GetUserDocuments(
 
 	result, err := repo.Storages.Documents.GetDocuments(ctx, documents.GetDocumentsRequest{
 		Fields: map[string]any{
-			documents.ColumnUserID: userID,
+			documents.ColumnOwner: userID,
 		},
 	})
 	if err != nil {
@@ -34,9 +33,10 @@ func GetUserDocuments(
 
 	for _, doc := range result.Documents {
 		response.Documents = append(response.Documents, schema.GetDocumentResponse{
-			ID:           hex.EncodeToString(doc.ID),
-			DocumentType: doc.Type,
-			Attributes:   doc.Attributes,
+			ID:          doc.ID.String(),
+			Name:        doc.Name,
+			Version:     doc.Version,
+			Description: doc.Description,
 		})
 	}
 

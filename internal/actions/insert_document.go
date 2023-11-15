@@ -7,6 +7,7 @@ import (
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
+	"documents/internal/storage/documents"
 )
 
 func InsertDocument(
@@ -17,10 +18,14 @@ func InsertDocument(
 		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
-	id, err := repo.Storages.Documents.AddDocument(ctx, userID, r.Type, r.Attributes)
+	result, err := repo.Storages.Documents.AddDocument(ctx, documents.AddDocumentRequest{
+		Name:        r.Name,
+		Owner:       userID,
+		Description: r.Description,
+	})
 	if err != nil {
 		return nil, web.DatabaseError(err)
 	}
 
-	return &schema.InsertDocumentResponse{ID: id}, nil
+	return &schema.InsertDocumentResponse{ID: result.ID.String()}, nil
 }

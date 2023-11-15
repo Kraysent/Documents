@@ -10,7 +10,7 @@ type Rule func() error
 func StringNotEmpty(str string) Rule {
 	return func() error {
 		if str == "" {
-			return NewValidationError("string '%s' is empty", str)
+			return NewValidationError(str, "string is not empty")
 		}
 
 		return nil

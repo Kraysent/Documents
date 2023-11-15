@@ -2,13 +2,13 @@ package actions
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
 	"documents/internal/storage/documents"
+	"github.com/google/uuid"
 )
 
 func DeleteDocument(
@@ -19,7 +19,7 @@ func DeleteDocument(
 		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
-	id, err := hex.DecodeString(r.ID)
+	id, err := uuid.Parse(r.ID)
 	if err != nil {
 		return nil, web.ValidationError(err)
 	}

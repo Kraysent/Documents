@@ -14,11 +14,15 @@
 }
 
 .document-name-block {
-    flex: 2;
+    flex: 1;
 }
 
-.document-attributes-block {
-    flex: 1;
+.document-version-block {
+    flex: 0.1
+}
+
+.document-description-block {
+    flex: 2;
     white-space: nowrap;
     overflow: scroll;
 }

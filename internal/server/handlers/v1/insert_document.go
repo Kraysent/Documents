@@ -27,9 +27,9 @@ func InsertDocument(r *http.Request, repo *core.Repository) (any, error) {
 		return nil, web.ValidationError(err)
 	}
 
-	response, cErr := actions.InsertDocument(r.Context(), repo, request)
-	if cErr != nil {
-		return nil, cErr
+	response, err := actions.InsertDocument(r.Context(), repo, request)
+	if err != nil {
+		return nil, err
 	}
 
 	return response, nil

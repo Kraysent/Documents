@@ -5,13 +5,13 @@ import (
 )
 
 type InsertDocumentRequest struct {
-	Type       string         `json:"document_type" db:"document_type"`
-	Attributes map[string]any `json:"attributes" db:"attributes"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func (r *InsertDocumentRequest) Validate() error {
 	rules := validation.NewRules(
-		validation.StringNotEmpty(r.Type),
+		validation.StringNotEmpty(r.Name),
 	)
 
 	return rules.Validate()

@@ -44,11 +44,6 @@ func GetHandlers() []CommonHandler {
 			Function: v1.InsertDocument,
 		},
 		{
-			Path:     "/api/v1/document",
-			Method:   http.MethodGet,
-			Function: v1.GetDocumentsByUsernameAndType,
-		},
-		{
 			Path:     "/api/v1/document/id",
 			Method:   http.MethodGet,
 			Function: v1.GetDocumentByID,

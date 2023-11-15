@@ -53,13 +53,15 @@ const LoginSection: React.FC = () => {
 
 class Document {
   id: string
-  document_type: string
-  attributes: object
+  name: string
+  version: number
+  description: string
 
-  constructor(id: string, document_type: string, attributes: object) {
+  constructor(id: string, name: string, version: number, description: string) {
     this.id = id
-    this.document_type = document_type
-    this.attributes = attributes
+    this.name = name
+    this.version = version
+    this.description = description
   }
 }
 
@@ -79,8 +81,9 @@ interface DocumentBlockProps {
 function DocumentBlock(props: DocumentBlockProps) {
   return <div className="document-block" key={props.key}>
     <div className="document-id-block">{props.document.id}</div>
-    <div className="document-name-block">{props.document.document_type}</div>
-    <div className="document-attributes-block">{JSON.stringify(props.document.attributes)}</div>
+    <div className="document-name-block">{props.document.name}</div>
+    <div className="document-version-block">{props.document.version}</div>
+    <div className="document-description-block">{props.document.description}</div>
   </div>
 }
 

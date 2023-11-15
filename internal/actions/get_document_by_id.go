@@ -2,13 +2,13 @@ package actions
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
 	"documents/internal/storage/documents"
+	"github.com/google/uuid"
 )
 
 func GetDocumentByID(
@@ -19,13 +19,13 @@ func GetDocumentByID(
 		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
-	idBytes, err := hex.DecodeString(r.ID)
+	id, err := uuid.Parse(r.ID)
 	if err != nil {
 		return nil, web.ValidationError(err)
 	}
 
 	data, err := repo.Storages.Documents.GetDocuments(ctx,
-		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: idBytes}},
+		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: id}},
 	)
 	if err != nil {
 		return nil, web.DatabaseError(err)
@@ -35,13 +35,14 @@ func GetDocumentByID(
 		return nil, web.InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
 	}
 
-	if data.Documents[0].UserID != userID {
+	if data.Documents[0].Owner != userID {
 		return nil, web.AuthorizationError(fmt.Errorf("active user does not have document with this ID"))
 	}
 
 	return &schema.GetDocumentResponse{
-		ID:           hex.EncodeToString(data.Documents[0].ID),
-		DocumentType: data.Documents[0].Type,
-		Attributes:   data.Documents[0].Attributes,
+		ID:          data.Documents[0].ID.String(),
+		Name:        data.Documents[0].Name,
+		Version:     data.Documents[0].Version,
+		Description: data.Documents[0].Description,
 	}, nil
 }
