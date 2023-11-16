@@ -12,13 +12,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_google_id ON documents.t_user (google_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON documents.t_user (username);
 
--- CREATE TYPE attribute AS
--- (
---     id    text,
---     name  text,
---     value text
--- );
-
 CREATE TABLE IF NOT EXISTS documents.t_document
 (
     id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -26,5 +19,4 @@ CREATE TABLE IF NOT EXISTS documents.t_document
     owner       bigint NOT NULL REFERENCES documents.t_user (id),
     version     bigint NOT NULL DEFAULT 1,
     description text
---     attributes  attribute[]
 );
