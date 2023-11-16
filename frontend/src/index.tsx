@@ -34,7 +34,7 @@ const router = createBrowserRouter([
   },
   {
     path: "document/:documentID",
-    element: <DocumentsPage />,
+    element: <DocumentsPage apiHost={apiHost} />,
   },
 ]);
 

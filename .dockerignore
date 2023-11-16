@@ -2,3 +2,6 @@ configs
 frontend
 infra
 postgres
+/documents
+Makefile
+docker-compose.yaml

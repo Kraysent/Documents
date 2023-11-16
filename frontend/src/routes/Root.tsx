@@ -1,9 +1,10 @@
 import Heading from "components/heading";
-import React, { useEffect, useState } from "react";
+import "components/heading.scss";
+import { createBackendClient } from "interactions/backend/root";
+import React from "react";
 import GoogleButton from "react-google-button";
 import "routes/Root.scss";
-import "routes/document-block.scss";
-import "routes/heading.scss";
+import "routes/documents-list-block.scss";
 
 interface RootProps {
   apiHost: string;
@@ -56,14 +57,6 @@ class Document {
   }
 }
 
-class GetUserDocumentsResponse {
-  documents: Document[];
-
-  constructor(documents: Document[]) {
-    this.documents = documents;
-  }
-}
-
 interface DocumentBlockProps {
   key: number;
   document: Document;
@@ -85,35 +78,8 @@ const DocumentBlock: React.FC<DocumentBlockProps> = (
 };
 
 const App: React.FC<RootProps> = (props: RootProps) => {
-  const [docs, setDocs] = useState<Document[]>([]);
-  const [mode, setMode] = useState("noauth");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch(`${props.apiHost}/v1/user/documents`, { credentials: "include" })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `This is an HTTP error: The status is ${response.status}`
-          );
-        }
-
-        return response.json();
-      })
-      .then((data) => {
-        let responseData: GetUserDocumentsResponse = data.data;
-
-        console.log(JSON.stringify(docs));
-        setLoading(false);
-        setDocs(responseData.documents);
-        setMode("auth");
-      })
-      .catch((err) => {
-        setError(err);
-        console.error(err);
-      });
-  }, []);
+  let client = createBackendClient(props.apiHost);
+  let [docs, mode, loading, error] = client.getDocumentsList();
 
   return (
     <div className="App">
