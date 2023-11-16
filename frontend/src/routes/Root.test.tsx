@@ -1,9 +1,8 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Root from './Root';
+import { render, screen } from "@testing-library/react";
+import Root from "./Root";
 
-test('renders learn react link', () => {
-  render(<Root apiHost='localhost' />);
+test("renders learn react link", () => {
+  render(<Root apiHost="localhost" />);
   const linkElement = screen.getByText(/learn react/i);
   expect(linkElement).toBeInTheDocument();
 });
