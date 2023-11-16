@@ -1,26 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import './App.scss';
+import './Root.scss';
 import './heading.scss';
 import './document-block.scss';
 import GoogleButton from 'react-google-button';
+import Heading from './heading'
 
-let apiHost: string;
-
-function setDevEnv() {
-  apiHost = "http://localhost:8080/api"
-}
-
-function setProdEnv() {
-  apiHost = "https://docarchive.space/api"
-}
-
-const Heading: React.FC = () => {
-  return <div className="heading">
-    <div className="heading-box">
-      <span className="leftheading">doc</span>
-      <span className="rightheading">archive</span>
-    </div>
-  </div>
+interface RootProps {
+  apiHost: string
 }
 
 const TextBlock: React.FC = () => {
@@ -34,20 +20,20 @@ const TextBlock: React.FC = () => {
   </div>
 }
 
-function loginRedirect() {
+function loginRedirect(apiHost: string) {
   let url = `${apiHost}/auth/google/login`
   console.log(`redirecting to ${url}`)
 
   window.location.href = url
 }
 
-const LoginSection: React.FC = () => {
+const LoginSection: React.FC<RootProps> = (props: RootProps) => {
   return <div className="login-section">
     <GoogleButton
       className="google-button"
       type="dark"
       label="Log in or register"
-      onClick={() => { loginRedirect() }} />
+      onClick={() => { loginRedirect(props.apiHost) }} />
   </div>
 }
 
@@ -78,30 +64,25 @@ interface DocumentBlockProps {
   document: Document
 }
 
-function DocumentBlock(props: DocumentBlockProps) {
-  return <div className="document-block" key={props.key}>
-    <div className="document-id-block">{props.document.id}</div>
-    <div className="document-name-block">{props.document.name}</div>
-    <div className="document-version-block">{props.document.version}</div>
-    <div className="document-description-block">{props.document.description}</div>
-  </div>
+const DocumentBlock: React.FC<DocumentBlockProps> = (props: DocumentBlockProps) => {
+  return (
+    <div className="document-block" key={props.key}>
+      <div className="document-id-block">{props.document.id}</div>
+      <div className="document-name-block">{props.document.name}</div>
+      <div className="document-version-block">{props.document.version}</div>
+      <div className="document-description-block">{props.document.description}</div>
+    </div>
+  )
 }
 
-
-const App: React.FC = () => {
+const App: React.FC<RootProps> = (props: RootProps) => {
   const [docs, setDocs] = useState<Document[]>([]);
   const [mode, setMode] = useState("noauth");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  if (process.env.NODE_ENV == "development") {
-    setDevEnv()
-  } else if (process.env.NODE_ENV == "production") {
-    setProdEnv()
-  }
-
   useEffect(() => {
-    fetch(`${apiHost}/v1/user/documents`, { credentials: 'include' })
+    fetch(`${props.apiHost}/v1/user/documents`, { credentials: 'include' })
       .then((response) => {
         if (!response.ok) {
           throw new Error(
@@ -131,7 +112,7 @@ const App: React.FC = () => {
         mode == "noauth" &&
         <div>
           <TextBlock />
-          <LoginSection />
+          <LoginSection apiHost={props.apiHost} />
         </div>
       }
       {mode == "auth" &&
