@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"os"
 	"strings"
@@ -68,6 +67,10 @@ func (s *storageImpl) Disconnect(ctx context.Context) error {
 	return nil
 }
 
+func (s *storageImpl) GetDB() *pgxpool.Pool {
+	return s.DB
+}
+
 func (s *storageImpl) QuerySq(ctx context.Context, query sq.Sqlizer) (pgx.Rows, error) {
 	q, args, err := query.ToSql()
 	if err != nil {
@@ -105,12 +108,4 @@ func (s *storageImpl) ExecSq(ctx context.Context, query sq.Sqlizer) (int64, erro
 	}
 
 	return result.RowsAffected(), nil
-}
-
-func RandomHex(n int) ([]byte, error) {
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		return nil, err
-	}
-	return bytes, nil
 }

@@ -17,6 +17,18 @@ CREATE TABLE IF NOT EXISTS documents.t_document
     id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     name        text   NOT NULL,
     owner       bigint NOT NULL REFERENCES documents.t_user (id),
-    version     bigint NOT NULL DEFAULT 1,
+    version     bigint NOT NULL  DEFAULT 1,
     description text
 );
+
+-- Start of the definition described by the session token management module.
+-- One most likely should not change this definition.
+CREATE TABLE sessions
+(
+    token  TEXT PRIMARY KEY,
+    data   BYTEA       NOT NULL,
+    expiry TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+-- End;

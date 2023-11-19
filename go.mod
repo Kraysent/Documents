@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/766b/chi-prometheus v0.0.0-20211217152057-87afa9aa2ca8
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/alexedwards/scs/pgxstore v0.0.0-20231113091146-cef4b05350c8
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/go-chi/chi v1.5.5
 	github.com/google/uuid v1.4.0

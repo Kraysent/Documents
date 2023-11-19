@@ -7,6 +7,7 @@ import (
 
 	"documents/internal/core"
 	"documents/internal/log"
+	"github.com/alexedwards/scs/pgxstore"
 )
 
 type Command struct {
@@ -47,6 +48,8 @@ func (c *Command) Init() error {
 	if err := c.Repository.Storage.Connect(c.Context()); err != nil {
 		return err
 	}
+
+	c.Repository.SessionManager.Store = pgxstore.New(c.Repository.Storage.GetDB())
 
 	log.Info("Connected to the database")
 	return nil
