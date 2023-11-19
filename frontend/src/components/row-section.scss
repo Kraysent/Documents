@@ -1,0 +1,15 @@
+.row-section {
+  background-color: rgb(123, 204, 230);
+  border-color: rgb(54, 181, 223);
+  border-width: 2px;
+  border-radius: 3px;
+  border-style: solid;
+  padding: 7px;
+  margin: 7px;
+  white-space: "nowrap";
+  overflow: "scroll";
+}
+
+.row-section:hover {
+  background-color: rgb(34, 187, 237);
+}

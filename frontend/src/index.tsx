@@ -12,7 +12,7 @@ let host!: string;
 
 function setDevEnv() {
   apiHost = "http://localhost:8080/api";
-  host = "http://localhost:8080";
+  host = "http://localhost:3000";
 }
 
 function setProdEnv() {
@@ -29,7 +29,7 @@ if (process.env.NODE_ENV == "development") {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root apiHost={apiHost} />,
+    element: <Root host={host} apiHost={apiHost} />,
     errorElement: <ErrorPage />,
   },
   {

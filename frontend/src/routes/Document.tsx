@@ -1,4 +1,5 @@
 import Heading from "components/heading";
+import RowSection from "components/row";
 import { createBackendClient } from "interactions/backend/root";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -14,8 +15,8 @@ const DocumentAttribute: React.FC<DocumentAttributeProps> = (
 ) => {
   return (
     <div className="document-block-item">
-      <div className="document-block-item-field">{props.field}</div>
-      <div className="document-block-item-value">{props.value}</div>
+      <RowSection flexSize={1} text={props.field} />
+      <RowSection flexSize={5} text={props.value} alignment="center"/>
     </div>
   );
 };

@@ -9,24 +9,6 @@
   align-items: center;
 }
 
-.document-id-block {
-  flex: 0.5;
-}
-
-.document-name-block {
-  flex: 1;
-}
-
-.document-version-block {
-  flex: 0.1;
-}
-
-.document-description-block {
-  flex: 2;
-  white-space: nowrap;
-  overflow: scroll;
-}
-
 .document-container {
   border: 2px solid black;
   display: flex;

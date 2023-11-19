@@ -1,13 +1,16 @@
 import Heading from "components/heading";
 import "components/heading.scss";
+import RowSection from "components/row";
 import { createBackendClient } from "interactions/backend/root";
 import React from "react";
 import GoogleButton from "react-google-button";
+import { Link } from "react-router-dom";
 import "routes/Root.scss";
 import "routes/documents-list-block.scss";
 
 interface RootProps {
   apiHost: string;
+  host: string;
 }
 
 const TextBlock: React.FC = () => {
@@ -60,20 +63,31 @@ class Document {
 interface DocumentBlockProps {
   key: number;
   document: Document;
+  host: string;
 }
 
 const DocumentBlock: React.FC<DocumentBlockProps> = (
   props: DocumentBlockProps
 ) => {
   return (
-    <div className="document-block" key={props.key}>
-      <div className="document-id-block">{props.document.id}</div>
-      <div className="document-name-block">{props.document.name}</div>
-      <div className="document-version-block">{props.document.version}</div>
-      <div className="document-description-block">
-        {props.document.description}
+    <Link
+      to={props.host + "/document/" + props.document.id}
+      style={{ textDecoration: "none" }}
+    >
+      <div className="document-block" key={props.key}>
+        <RowSection text={props.document.name} alignment="center" />
+        <RowSection
+          flexSize={0.1}
+          text={props.document.version.toString()}
+          alignment="center"
+        />
+        <RowSection
+          flexSize={2}
+          text={props.document.description}
+          alignment="right"
+        />
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -87,13 +101,13 @@ const App: React.FC<RootProps> = (props: RootProps) => {
       {mode == "noauth" && (
         <div>
           <TextBlock />
-          <LoginSection apiHost={props.apiHost} />
+          <LoginSection host={props.host} apiHost={props.apiHost} />
         </div>
       )}
       {mode == "auth" && (
         <div className="document-container">
           {docs.map((doc, i) => {
-            return <DocumentBlock key={i} document={doc} />;
+            return <DocumentBlock host={props.host} key={i} document={doc} />;
           })}
         </div>
       )}
