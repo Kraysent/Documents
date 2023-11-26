@@ -3,9 +3,9 @@ CREATE SCHEMA IF NOT EXISTS documents;
 
 CREATE TABLE IF NOT EXISTS documents.t_user
 (
-    id        SERIAL PRIMARY KEY,
-    username  TEXT NOT NULL,
-    google_id TEXT
+    id        serial PRIMARY KEY,
+    username  text NOT NULL,
+    google_id text
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_google_id ON documents.t_user (google_id);
@@ -23,12 +23,23 @@ CREATE TABLE IF NOT EXISTS documents.t_document
 
 -- Start of the definition described by the session token management module.
 -- One most likely should not change this definition.
-CREATE TABLE sessions
+CREATE TABLE IF NOT EXISTS sessions
 (
-    token  TEXT PRIMARY KEY,
-    data   BYTEA       NOT NULL,
-    expiry TIMESTAMPTZ NOT NULL
+    token  text PRIMARY KEY,
+    data   bytea       NOT NULL,
+    expiry timestamptz NOT NULL
 );
 
-CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions (expiry);
 -- End;
+
+CREATE TYPE link_status AS ENUM ('enabled', 'disabled');
+
+CREATE TABLE documents.t_link
+(
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    document_id uuid NOT NULL REFERENCES documents.t_document (id),
+    creation_dt timestamp NOT NULL DEFAULT now(),
+    expiry_dt timestamp NOT NULL,
+    status link_status NOT NULL DEFAULT 'enabled'
+);

@@ -3,6 +3,9 @@ package validation
 import (
 	"errors"
 	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Rule func() error
@@ -11,6 +14,28 @@ func StringNotEmpty(str string) Rule {
 	return func() error {
 		if str == "" {
 			return NewValidationError(str, "string is not empty")
+		}
+
+		return nil
+	}
+}
+
+func IsUUID(str string) Rule {
+	return func() error {
+		_, err := uuid.Parse(str)
+		if err != nil {
+			return NewValidationError(str, "string is not a valid uuid")
+		}
+
+		return nil
+	}
+}
+
+func IsISO8601(str string) Rule {
+	return func() error {
+		_, err := time.Parse(time.RFC3339, str)
+		if err != nil {
+			return NewValidationError(str, "string is not a valid ISO 8601 timestamp")
 		}
 
 		return nil

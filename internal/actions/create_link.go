@@ -3,29 +3,31 @@ package actions
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"documents/internal/actions/schema"
 	"documents/internal/core"
 	"documents/internal/library/web"
 	"documents/internal/storage/documents"
+	"documents/internal/storage/links"
 	"github.com/google/uuid"
 )
 
-func GetDocumentByID(
-	ctx context.Context, repo *core.Repository, r schema.GetDocumentByIDRequest,
-) (*schema.GetDocumentResponse, error) {
+func CreateLink(
+	ctx context.Context, repo *core.Repository, r schema.CreateLinkRequest,
+) (*schema.CreateLinkResponse, error) {
 	userID := repo.SessionManager.GetInt64(ctx, "user_id")
 	if userID == 0 {
 		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
 	}
 
-	id, err := uuid.Parse(r.ID)
+	documentID, err := uuid.Parse(r.DocumentID)
 	if err != nil {
 		return nil, web.ValidationError(err)
 	}
 
 	data, err := repo.Storages.Documents.GetDocuments(ctx,
-		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: id}},
+		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: documentID}},
 	)
 	if err != nil {
 		return nil, web.DatabaseError(err)
@@ -39,10 +41,15 @@ func GetDocumentByID(
 		return nil, web.AuthorizationError(fmt.Errorf("user does not have document with this ID"))
 	}
 
-	return &schema.GetDocumentResponse{
-		ID:          data.Documents[0].ID.String(),
-		Name:        data.Documents[0].Name,
-		Version:     data.Documents[0].Version,
-		Description: data.Documents[0].Description,
-	}, nil
+	expiryDate, err := time.Parse(time.RFC3339, r.ExpiryDate)
+	if err != nil {
+		return nil, web.ValidationError(err)
+	}
+
+	result, err := repo.Storages.Links.CreateLink(ctx, links.CreateLinkRequest{
+		DocumentID: documentID,
+		ExpiryDate: expiryDate,
+	})
+
+	return &schema.CreateLinkResponse{ID: result.ID.String()}, nil
 }

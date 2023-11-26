@@ -56,7 +56,9 @@ func (s *DocumentStorage) RemoveDocuments(ctx context.Context, fields map[string
 		PlaceholderFormat(sq.Dollar))
 }
 
-func (s *DocumentStorage) GetDocuments(ctx context.Context, request GetDocumentsRequest) (*GetDocumentsResult, error) {
+func (s *DocumentStorage) GetDocuments(
+	ctx context.Context, request GetDocumentsRequest,
+) (result *GetDocumentsResult, err error) {
 	rows, err := s.storage.QuerySq(ctx,
 		sq.Select(ColumnID, ColumnName, ColumnOwner, ColumnVersion, ColumnDescription).
 			From(TableName).
@@ -70,7 +72,7 @@ func (s *DocumentStorage) GetDocuments(ctx context.Context, request GetDocuments
 		err = rows.Err()
 	}()
 
-	var result GetDocumentsResult
+	result = &GetDocumentsResult{}
 
 	for rows.Next() {
 		if err := rows.Err(); err != nil {
@@ -85,5 +87,5 @@ func (s *DocumentStorage) GetDocuments(ctx context.Context, request GetDocuments
 		result.Documents = append(result.Documents, doc)
 	}
 
-	return &result, nil
+	return result, nil
 }
