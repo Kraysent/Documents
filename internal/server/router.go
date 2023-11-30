@@ -33,7 +33,7 @@ func GetHandlers() []CommonHandler {
 				return map[string]any{"ping": "pong"}, nil
 			},
 		},
-		{
+		{ // TODO: remove after MVP is done
 			Path:     "/api/internal/token",
 			Method:   http.MethodPost,
 			Function: admin.IssueToken,

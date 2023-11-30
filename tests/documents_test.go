@@ -1,16 +1,10 @@
 package tests
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"syscall"
 	"testing"
 	"time"
 
@@ -21,24 +15,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-)
-
-const (
-	DefaultUser           = "testuser"
-	DefaultPassword       = "password"
-	DefaultDatabasePort   = 7654
-	DefaultDatabase       = "documents"
-	DefaultMigrationsPath = "file://../postgres/migrations"
-
-	DefaultAppPort    = "7655"
-	DefaultConfigPath = "../configs/dev.yaml"
-
-	RequestTimeout = 1 * time.Second
-)
-
-var DefaultURL = fmt.Sprintf("http://localhost:%s", DefaultAppPort)
-var DSN = fmt.Sprintf("postgresql://%s:%s@localhost:%d/%s?sslmode=disable",
-	DefaultUser, DefaultPassword, DefaultDatabasePort, DefaultDatabase,
 )
 
 type DocumentSuite struct {
@@ -64,52 +40,39 @@ func (s *DocumentSuite) migrate(dsn string) error {
 	return nil
 }
 
-func sendPost[T any](
-	ctx context.Context, handler string, data map[string]any, authCookie string,
-) (respBody T, resp *http.Response, err error) {
-	ctx, cancel := context.WithTimeout(ctx, RequestTimeout)
-	defer cancel()
+func (s *DocumentSuite) insertFakeUsers() {
+	conn, err := sql.Open("postgres", DSN)
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('spiderman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('ironman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('captain')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('hawkeye')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('black_widow')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('antman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('loki')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('tor')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('captain_marvel')")
+	s.Require().NoError(err)
+	s.Require().NoError(conn.Close())
+}
 
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		return respBody, nil, err
-	}
+func (s *DocumentSuite) authorize(userID int64) string {
+	ctx := context.Background()
+	ctx, err := s.command.Repository.SessionManager.Load(ctx, "")
+	s.Require().NoError(err)
+	s.command.Repository.SessionManager.Put(ctx, "user_id", userID)
+	token, _, err := s.command.Repository.SessionManager.Commit(ctx)
+	s.Require().NoError(err)
 
-	path, err := url.JoinPath(DefaultURL, handler)
-	if err != nil {
-		return respBody, nil, err
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx, http.MethodPost, path, bytes.NewReader(dataBytes),
-	)
-	if err != nil {
-		return respBody, nil, err
-	}
-
-	if authCookie != "" {
-		req.AddCookie(&http.Cookie{
-			Name:  "session",
-			Value: authCookie,
-		})
-	}
-
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return respBody, nil, err
-	}
-
-	defer func() {
-		err = resp.Body.Close()
-	}()
-
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return respBody, nil, err
-	}
-
-	var result T
-	return result, resp, json.Unmarshal(b, &result)
+	return token
 }
 
 func (s *DocumentSuite) SetupSuite() {
@@ -133,6 +96,8 @@ func (s *DocumentSuite) SetupSuite() {
 	err = s.migrate(DSN)
 	s.Require().NoError(err)
 
+	s.insertFakeUsers()
+
 	s.Require().NoError(os.Setenv("POSTGRES_DSN", DSN))
 	s.Require().NoError(os.Setenv("PORT", DefaultAppPort))
 	s.Require().NoError(os.Setenv("CONFIG", DefaultConfigPath))
@@ -149,9 +114,8 @@ func (s *DocumentSuite) SetupSuite() {
 }
 
 func (s *DocumentSuite) TearDownSuite() {
+	s.Require().NoError(s.command.Cleanup())
 	s.Require().NoError(s.postgres.Stop())
-	p, _ := os.FindProcess(syscall.Getpid())
-	s.Require().NoError(p.Signal(syscall.SIGINT))
 }
 
 func (s *DocumentSuite) TestUnauthorizedCreation() {
@@ -163,22 +127,9 @@ func (s *DocumentSuite) TestUnauthorizedCreation() {
 	s.Require().Equal(http.StatusUnauthorized, resp.StatusCode)
 }
 
-func (s *DocumentSuite) TestCreation() {
-	conn, err := sql.Open("postgres", DSN)
-	s.Require().NoError(err)
-	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('spiderman')")
-	s.Require().NoError(err)
-	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('ironman')")
-	s.Require().NoError(err)
-	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('captain')")
-	s.Require().NoError(err)
-
+func (s *DocumentSuite) TestInsertHappyPath() {
+	token := s.authorize(1)
 	ctx := context.Background()
-	ctx, err = s.command.Repository.SessionManager.Load(ctx, "")
-	s.Require().NoError(err)
-	s.command.Repository.SessionManager.Put(ctx, "user_id", int64(1))
-	token, _, err := s.command.Repository.SessionManager.Commit(ctx)
-	s.Require().NoError(err)
 
 	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
 		"name":        "Some cool document name",
@@ -189,4 +140,183 @@ func (s *DocumentSuite) TestCreation() {
 	id, err := uuid.Parse(respBody["data"]["id"].(string))
 	s.Require().NoError(err)
 	s.Require().NotEqual(uuid.Nil, id)
+}
+
+func (s *DocumentSuite) TestInsertInvalidDocument() {
+	token := s.authorize(1)
+	ctx := context.Background()
+
+	_, resp, err := sendPost[map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "",
+		"description": "the name is empty",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusBadRequest, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestGetUserDocumentsUnauthorized() {
+	ctx := context.Background()
+
+	_, resp, err := sendGet[map[string]map[string]any](
+		ctx, "/api/v1/user/documents", nil, "",
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusUnauthorized, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestGetUserDocumentsNoDocuments() {
+	token := s.authorize(2)
+	ctx := context.Background()
+
+	respBody, resp, err := sendGet[map[string]map[string]any](
+		ctx, "/api/v1/user/documents", nil, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	s.Require().Len(respBody["data"]["documents"].([]any), 0)
+}
+
+func (s *DocumentSuite) TestGetUserDocumentsHappyPath() {
+	token := s.authorize(3)
+	ctx := context.Background()
+
+	_, resp, err := sendPost[map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Shield license",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	_, resp, err = sendPost[map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Old passport",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	respBody, resp, err := sendGet[map[string]map[string]any](
+		ctx, "/api/v1/user/documents", nil, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	docs := respBody["data"]["documents"].([]any)
+	s.Require().Len(docs, 2)
+
+	for _, doc := range docs {
+		s.Require().NotEqual(uuid.Nil, doc.(map[string]any)["id"])
+	}
+}
+
+func (s *DocumentSuite) TestGetDocumentByIDNoSuchDocument() {
+	token := s.authorize(4)
+	ctx := context.Background()
+
+	_, resp, err := sendPost[map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Bow license",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	_, resp, err = sendGet[map[string]map[string]any](
+		ctx, "/api/v1/document/id", map[string]string{"id": "10101010-9fa0-9fa0-9fa0-9ce9ce9ce9ce"}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestGetDocumentByIDWrongUser() {
+	token := s.authorize(5)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Knife license",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID := respBody["data"]["id"].(string)
+
+	token = s.authorize(4)
+	_, resp, err = sendGet[map[string]map[string]any](
+		ctx, "/api/v1/document/id", map[string]string{"id": documentID}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestGetDocumentByIDHappyPath() {
+	token := s.authorize(6)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Knife license",
+		"description": "with a stamp!",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID := respBody["data"]["id"].(string)
+
+	respBody, resp, err = sendGet[map[string]map[string]any](
+		ctx, "/api/v1/document/id", map[string]string{"id": documentID}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	s.Require().Equal("Knife license", respBody["data"]["name"])
+}
+
+func (s *DocumentSuite) TestDeleteDocumentThatDoesNotExist() {
+	token := s.authorize(7)
+	ctx := context.Background()
+
+	_, resp, err := sendPost[map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Bow license",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	_, resp, err = sendDelete[map[string]map[string]any](
+		ctx, "/api/v1/document", map[string]string{"id": "10101010-9fa0-9fa0-9fa0-9ce9ce9ce9ce"}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestDeleteDocumentWrongUser() {
+	token := s.authorize(8)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Knife license",
+		"description": "",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID := respBody["data"]["id"].(string)
+
+	token = s.authorize(7)
+	_, resp, err = sendDelete[map[string]map[string]any](
+		ctx, "/api/v1/document", map[string]string{"id": documentID}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *DocumentSuite) TestDeleteDocumentHappyPath() {
+	token := s.authorize(6)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Knife license",
+		"description": "with a stamp!",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID := respBody["data"]["id"].(string)
+
+	respBody, resp, err = sendDelete[map[string]map[string]any](
+		ctx, "/api/v1/document", map[string]string{"id": documentID}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
 }

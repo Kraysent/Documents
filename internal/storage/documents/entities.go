@@ -35,6 +35,14 @@ type GetDocumentsRequest struct {
 	Fields map[string]any
 }
 
+type GetDocumentRequest struct {
+	ID uuid.UUID
+}
+
+type GetDocumentResult struct {
+	Document Document
+}
+
 type GetDocumentsResult struct {
 	Documents []Document
 }

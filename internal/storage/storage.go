@@ -32,20 +32,23 @@ func NewStorage(config Config) *storageImpl {
 }
 
 func (s *storageImpl) Connect(ctx context.Context) error {
-	password, ok := os.LookupEnv(s.Config.PasswordEnv)
+	dsn, ok := os.LookupEnv("POSTGRES_DSN")
 	if !ok {
-		return fmt.Errorf("no DB password specified on %s env", s.Config.PasswordEnv)
-	}
-	dsn := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=%s",
-		s.Config.Username,
-		password,
-		strings.Join(s.Config.Hosts, ","),
-		s.Config.DBName,
-		s.Config.SSLMode,
-	)
+		password, ok := os.LookupEnv(s.Config.PasswordEnv)
+		if !ok {
+			return fmt.Errorf("no DB password specified on %s env", s.Config.PasswordEnv)
+		}
+		dsn = fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=%s",
+			s.Config.Username,
+			password,
+			strings.Join(s.Config.Hosts, ","),
+			s.Config.DBName,
+			s.Config.SSLMode,
+		)
 
-	if s.Config.SSLMode == "require" {
-		dsn += fmt.Sprintf("&sslrootcert=%s", s.Config.SSLRootCertPath)
+		if s.Config.SSLMode == "require" {
+			dsn += fmt.Sprintf("&sslrootcert=%s", s.Config.SSLRootCertPath)
+		}
 	}
 
 	pool, err := pgxpool.New(ctx, dsn)

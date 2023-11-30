@@ -5,10 +5,11 @@ import (
 )
 
 const (
-	DatabaseErrorCode      = "DATABASE_ERROR"
-	InternalErrorCode      = "INTERNAL_ERROR"
-	ValidationErrorCode    = "VALIDATION_ERROR"
-	AuthorizationErrorCode = "AUTHORIZATION_ERROR"
+	DatabaseErrorCode      = "database_error"
+	InternalErrorCode      = "internal_error"
+	ValidationErrorCode    = "validation_error"
+	AuthorizationErrorCode = "authorization_error"
+	NotFoundErrorCode      = "not_found"
 )
 
 type CodedError struct {
@@ -25,6 +26,14 @@ func ValidationError(err error) CodedError {
 	return CodedError{
 		Code:     ValidationErrorCode,
 		HTTPCode: http.StatusBadRequest,
+		Message:  err.Error(),
+	}
+}
+
+func NotFoundError(err error) CodedError {
+	return CodedError{
+		Code:     NotFoundErrorCode,
+		HTTPCode: http.StatusNotFound,
 		Message:  err.Error(),
 	}
 }

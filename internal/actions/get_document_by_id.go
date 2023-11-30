@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"documents/internal/actions/schema"
@@ -24,25 +25,22 @@ func GetDocumentByID(
 		return nil, web.ValidationError(err)
 	}
 
-	data, err := repo.Storages.Documents.GetDocuments(ctx,
-		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: id}},
-	)
+	data, err := repo.Storages.Documents.GetDocument(ctx, documents.GetDocumentRequest{ID: id})
+	if err == sql.ErrNoRows {
+		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.ID))
+	}
 	if err != nil {
 		return nil, web.DatabaseError(err)
 	}
 
-	if len(data.Documents) != 1 {
-		return nil, web.InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
-	}
-
-	if data.Documents[0].Owner != userID {
-		return nil, web.AuthorizationError(fmt.Errorf("user does not have document with this ID"))
+	if data.Document.Owner != userID {
+		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.ID))
 	}
 
 	return &schema.GetDocumentResponse{
-		ID:          data.Documents[0].ID.String(),
-		Name:        data.Documents[0].Name,
-		Version:     data.Documents[0].Version,
-		Description: data.Documents[0].Description,
+		ID:          data.Document.ID.String(),
+		Name:        data.Document.Name,
+		Version:     data.Document.Version,
+		Description: data.Document.Description,
 	}, nil
 }

@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	libstorage "documents/internal/library/storage"
@@ -16,6 +17,7 @@ type DocumentStorage interface {
 	AddDocument(context.Context, AddDocumentRequest) (*AddDocumentResult, error)
 	RemoveDocuments(context.Context, map[string]any) (int64, error)
 	GetDocuments(ctx context.Context, request GetDocumentsRequest) (*GetDocumentsResult, error)
+	GetDocument(ctx context.Context, request GetDocumentRequest) (*GetDocumentResult, error)
 }
 
 type documentStorageImpl struct {
@@ -60,6 +62,27 @@ func (s *documentStorageImpl) RemoveDocuments(ctx context.Context, fields map[st
 	return s.storage.ExecSq(ctx, sq.Delete(TableName).
 		Where(libstorage.SqAnd(fields)).
 		PlaceholderFormat(sq.Dollar))
+}
+
+func (s *documentStorageImpl) GetDocument(
+	ctx context.Context, request GetDocumentRequest,
+) (*GetDocumentResult, error) {
+	res, err := s.GetDocuments(ctx, GetDocumentsRequest{
+		Fields: map[string]any{ColumnID: request.ID},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(res.Documents) == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	if n := len(res.Documents); n != 1 {
+		return nil, fmt.Errorf("unable to collect row, found %d rows", n)
+	}
+
+	return &GetDocumentResult{Document: res.Documents[0]}, nil
 }
 
 func (s *documentStorageImpl) GetDocuments(
