@@ -11,15 +11,23 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type LinkStorage struct {
+// LinkStorage is a thin wrapper around users table
+type LinkStorage interface {
+	CreateLink(context.Context, CreateLinkRequest) (*CreateLinkResult, error)
+	SetLinkStatus(context.Context, SetLinkStatusRequest) (*SetLinkStatusResult, error)
+	GetLink(context.Context, GetLinkRequest) (*GetLinkResult, error)
+	GetLinks(context.Context, GetLinksRequest) (*GetLinksResult, error)
+}
+
+type linkStorageImpl struct {
 	storage storage.Storage
 }
 
-func NewLinkStorage(store storage.Storage) *LinkStorage {
-	return &LinkStorage{storage: store}
+func NewLinkStorage(store storage.Storage) *linkStorageImpl {
+	return &linkStorageImpl{storage: store}
 }
 
-func (s *LinkStorage) CreateLink(
+func (s *linkStorageImpl) CreateLink(
 	ctx context.Context, request CreateLinkRequest,
 ) (result *CreateLinkResult, err error) {
 	row, err := s.storage.QueryRowSq(ctx,
@@ -41,7 +49,7 @@ func (s *LinkStorage) CreateLink(
 	return &CreateLinkResult{ID: linkID}, nil
 }
 
-func (s *LinkStorage) SetLinkStatus(
+func (s *linkStorageImpl) SetLinkStatus(
 	ctx context.Context, request SetLinkStatusRequest,
 ) (result *SetLinkStatusResult, err error) {
 	n, err := s.storage.ExecSq(ctx,
@@ -60,7 +68,7 @@ func (s *LinkStorage) SetLinkStatus(
 	return &SetLinkStatusResult{}, nil
 }
 
-func (s *LinkStorage) GetLink(
+func (s *linkStorageImpl) GetLink(
 	ctx context.Context, request GetLinkRequest,
 ) (result *GetLinkResult, err error) {
 	res, err := s.GetLinks(ctx, GetLinksRequest{
@@ -76,7 +84,7 @@ func (s *LinkStorage) GetLink(
 	return &GetLinkResult{Link: res.Links[0]}, nil
 }
 
-func (s *LinkStorage) GetLinks(
+func (s *linkStorageImpl) GetLinks(
 	ctx context.Context, request GetLinksRequest,
 ) (result *GetLinksResult, err error) {
 	rows, err := s.storage.QuerySq(ctx,

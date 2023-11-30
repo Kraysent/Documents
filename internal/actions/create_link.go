@@ -16,11 +16,6 @@ import (
 func CreateLink(
 	ctx context.Context, repo *core.Repository, r schema.CreateLinkRequest,
 ) (*schema.CreateLinkResponse, error) {
-	userID := repo.SessionManager.GetInt64(ctx, "user_id")
-	if userID == 0 {
-		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
-	}
-
 	documentID, err := uuid.Parse(r.DocumentID)
 	if err != nil {
 		return nil, web.ValidationError(err)
@@ -37,7 +32,7 @@ func CreateLink(
 		return nil, web.InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
 	}
 
-	if data.Documents[0].Owner != userID {
+	if data.Documents[0].Owner != r.UserID {
 		return nil, web.AuthorizationError(fmt.Errorf("user does not have document with this ID"))
 	}
 

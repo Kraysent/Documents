@@ -5,6 +5,7 @@ import (
 )
 
 type CreateLinkRequest struct {
+	UserID     int64  `json:"-"`
 	DocumentID string `json:"document_id"`
 	ExpiryDate string `json:"expiry_date"`
 }

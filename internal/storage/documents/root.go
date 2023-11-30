@@ -12,15 +12,21 @@ import (
 )
 
 // DocumentStorage is a thin wrapper around documents table.
-type DocumentStorage struct {
+type DocumentStorage interface {
+	AddDocument(context.Context, AddDocumentRequest) (*AddDocumentResult, error)
+	RemoveDocuments(context.Context, map[string]any) (int64, error)
+	GetDocuments(ctx context.Context, request GetDocumentsRequest) (*GetDocumentsResult, error)
+}
+
+type documentStorageImpl struct {
 	storage storage.Storage
 }
 
-func NewDocumentStorage(store storage.Storage) *DocumentStorage {
-	return &DocumentStorage{storage: store}
+func NewDocumentStorage(store storage.Storage) *documentStorageImpl {
+	return &documentStorageImpl{storage: store}
 }
 
-func (s *DocumentStorage) AddDocument(
+func (s *documentStorageImpl) AddDocument(
 	ctx context.Context, request AddDocumentRequest,
 ) (result *AddDocumentResult, err error) {
 	rows, err := s.storage.QuerySq(ctx,
@@ -50,13 +56,13 @@ func (s *DocumentStorage) AddDocument(
 	return &AddDocumentResult{ID: documentID}, nil
 }
 
-func (s *DocumentStorage) RemoveDocuments(ctx context.Context, fields map[string]any) (int64, error) {
+func (s *documentStorageImpl) RemoveDocuments(ctx context.Context, fields map[string]any) (int64, error) {
 	return s.storage.ExecSq(ctx, sq.Delete(TableName).
 		Where(libstorage.SqAnd(fields)).
 		PlaceholderFormat(sq.Dollar))
 }
 
-func (s *DocumentStorage) GetDocuments(
+func (s *documentStorageImpl) GetDocuments(
 	ctx context.Context, request GetDocumentsRequest,
 ) (result *GetDocumentsResult, err error) {
 	rows, err := s.storage.QuerySq(ctx,

@@ -10,15 +10,20 @@ import (
 )
 
 // UserStorage is a thin wrapper around users table.
-type UserStorage struct {
+type UserStorage interface {
+	GetUser(context.Context, GetUserRequest) (*GetUserResult, error)
+	CreateUser(context.Context, CreateUserRequest) (*CreateUserResult, error)
+}
+
+type userStorageImpl struct {
 	storage storage.Storage
 }
 
-func NewUserStorage(store storage.Storage) *UserStorage {
-	return &UserStorage{storage: store}
+func NewUserStorage(store storage.Storage) *userStorageImpl {
+	return &userStorageImpl{storage: store}
 }
 
-func (s *UserStorage) GetUser(ctx context.Context, r GetUserRequest) (*GetUserResult, error) {
+func (s *userStorageImpl) GetUser(ctx context.Context, r GetUserRequest) (*GetUserResult, error) {
 	selector := libstorage.SqAnd(r.Fields)
 
 	row, err := s.storage.QueryRowSq(ctx, sq.Select(ColumnID).
@@ -37,7 +42,7 @@ func (s *UserStorage) GetUser(ctx context.Context, r GetUserRequest) (*GetUserRe
 	return &result, nil
 }
 
-func (s *UserStorage) CreateUser(ctx context.Context, r CreateUserRequest) (*CreateUserResult, error) {
+func (s *userStorageImpl) CreateUser(ctx context.Context, r CreateUserRequest) (*CreateUserResult, error) {
 	row, err := s.storage.QueryRowSq(ctx, sq.Insert(TableName).
 		Columns(ColumnUsername, ColumnGoogleID).
 		Values(r.Username, r.GoogleID).

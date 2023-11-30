@@ -1,7 +1,12 @@
 REGISTRY = `terraform -chdir=infra/terraform output -raw document-registry-id`
 
-all:
+all: build
+
+build:
 	go build .
+
+test: build
+	go test ./tests
 
 style:
 	errcheck .

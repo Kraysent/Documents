@@ -2,18 +2,10 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 
 	"documents/internal/commands"
-	"documents/internal/library/web"
 	"documents/internal/log"
-	"documents/internal/server"
-	chiprometheus "github.com/766b/chi-prometheus"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -27,41 +19,7 @@ func main() {
 		}
 	}()
 
-	g, _ := errgroup.WithContext(command.Context())
-
-	g.Go(func() error {
-		http.Handle("/metrics", promhttp.Handler())
-		return http.ListenAndServe(":2112", nil)
-	})
-	g.Go(func() error {
-		router := chi.NewRouter()
-		router.Use(middleware.RequestID)
-		router.Use(middleware.Logger)
-		router.Use(middleware.Recoverer)
-		router.Use(middleware.CleanPath)
-		router.Use(web.CORSMiddleware(command.Repository))
-		router.Use(chiprometheus.NewMiddleware("documents"))
-		router.Use(command.Repository.SessionManager.LoadAndSave)
-
-		for _, handler := range server.GetHandlers() {
-			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
-		}
-
-		for _, handler := range server.GetAuthHandlers() {
-			router.MethodFunc(handler.Method, handler.Path, handler.GetHandler(command.Repository))
-		}
-
-		log.Info("Starting server",
-			zap.Int("port", command.Repository.Config.Server.Port),
-			zap.String("url", fmt.Sprintf("http://%s:%d",
-				command.Repository.Config.Server.Host, command.Repository.Config.Server.Port)))
-
-		return http.ListenAndServe(
-			fmt.Sprintf("0.0.0.0:%d", command.Repository.Config.Server.Port), router,
-		)
-	})
-
-	if err := g.Wait(); err != nil {
+	if err := command.Start(); err != nil {
 		fmt.Println(err)
 		log.Fatal("runtime error", zap.Error(err))
 	}

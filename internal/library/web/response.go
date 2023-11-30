@@ -28,7 +28,7 @@ func Handle404(w http.ResponseWriter) {
 func HandleError(writer http.ResponseWriter, err error) error {
 	codedErr, ok := err.(CodedError)
 	if !ok {
-		codedErr = *InternalError(err)
+		codedErr = InternalError(err)
 	}
 
 	writer.WriteHeader(codedErr.HTTPCode)

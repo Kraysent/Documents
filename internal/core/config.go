@@ -2,6 +2,7 @@ package core
 
 import (
 	"os"
+	"strconv"
 
 	"documents/internal/storage"
 	"gopkg.in/yaml.v3"
@@ -32,6 +33,15 @@ func ParseConfig(filename string) (*Config, error) {
 
 	if err := yaml.Unmarshal(file, &config); err != nil {
 		return nil, err
+	}
+
+	if portStr, ok := os.LookupEnv("PORT"); ok {
+		port, err := strconv.Atoi(portStr)
+		if err != nil {
+			return nil, err
+		}
+
+		config.Server.Port = port
 	}
 
 	return &config, nil

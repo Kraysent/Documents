@@ -13,9 +13,9 @@ import (
 type Repository struct {
 	Storage  storage.Storage
 	Storages struct {
-		Documents *documents.DocumentStorage
-		Users     *users.UserStorage
-		Links     *links.LinkStorage
+		Documents documents.DocumentStorage
+		Users     users.UserStorage
+		Links     links.LinkStorage
 	}
 	SessionManager *scs.SessionManager
 	Config         *Config

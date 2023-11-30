@@ -6,12 +6,12 @@ import (
 	"go.uber.org/zap"
 )
 
-var globalLogger *zap.Logger
+var globalLogger = zap.L()
 
 func InitLogger() error {
 	config := zap.NewDevelopmentConfig()
 	config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	config.Development = true
+	config.Development = false
 
 	logger, err := config.Build()
 	if err != nil {
