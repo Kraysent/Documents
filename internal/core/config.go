@@ -10,7 +10,10 @@ import (
 
 type Config struct {
 	Storage storage.Config `yaml:"storage"`
-	Server  struct {
+	Metrics struct {
+		Name string `yaml:"name"`
+	} `yaml:"metrics"`
+	Server struct {
 		Host       string `yaml:"host"`
 		Port       int    `yaml:"port"`
 		CORSOrigin string `yaml:"cors_origin"`

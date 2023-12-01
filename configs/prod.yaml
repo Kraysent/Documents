@@ -6,6 +6,9 @@ server:
     google:
       redirect_url: https://docarchive.space/api/auth/google/callback
 
+metrics:
+  name: documents
+
 storage:
   hosts:
     - c-c9qurglps80g3pihm245.rw.mdb.yandexcloud.net:6432

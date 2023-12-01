@@ -3,12 +3,19 @@ package tests
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
+
+	"documents/internal/commands"
+	embeddedpostgres "github.com/fergusstrange/embedded-postgres"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/stretchr/testify/suite"
 )
 
 const (
@@ -29,23 +36,101 @@ var DSN = fmt.Sprintf("postgresql://%s:%s@localhost:%d/%s?sslmode=disable",
 	DefaultUser, DefaultPassword, DefaultDatabasePort, DefaultDatabase,
 )
 
-func doRequest[OutputType any](r *http.Request) (respBody OutputType, resp *http.Response, err error) {
-	resp, err = http.DefaultClient.Do(r)
+type BaseSuite struct {
+	suite.Suite
+	postgres *embeddedpostgres.EmbeddedPostgres
+	command  *commands.Command
+}
+
+func (s *BaseSuite) migrate(dsn string) error {
+	m, err := migrate.New(DefaultMigrationsPath, dsn)
 	if err != nil {
-		return respBody, nil, err
+		return err
 	}
+
+	if err := m.Up(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *BaseSuite) insertFakeUsers() {
+	conn, err := sql.Open("postgres", DSN)
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('spiderman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('ironman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('captain')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('hawkeye')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('black_widow')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('antman')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('loki')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('tor')")
+	s.Require().NoError(err)
+	_, err = conn.Exec("INSERT INTO documents.t_user (username) VALUES ('captain_marvel')")
+	s.Require().NoError(err)
+	s.Require().NoError(conn.Close())
+}
+
+func (s *BaseSuite) authorize(userID int64) string {
+	ctx := context.Background()
+	ctx, err := s.command.Repository.SessionManager.Load(ctx, "")
+	s.Require().NoError(err)
+	s.command.Repository.SessionManager.Put(ctx, "user_id", userID)
+	token, _, err := s.command.Repository.SessionManager.Commit(ctx)
+	s.Require().NoError(err)
+
+	return token
+}
+
+func (s *BaseSuite) SetupSuite() {
+	var err error
+	s.postgres = embeddedpostgres.NewDatabase(
+		embeddedpostgres.DefaultConfig().
+			Username(DefaultUser).
+			Password(DefaultPassword).
+			Database(DefaultDatabase).
+			Port(DefaultDatabasePort),
+	)
+	err = s.postgres.Start()
+	s.Require().NoError(err)
 
 	defer func() {
-		err = resp.Body.Close()
+		if err != nil {
+			s.Require().NoError(s.postgres.Stop())
+		}
 	}()
 
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return respBody, nil, err
-	}
+	err = s.migrate(DSN)
+	s.Require().NoError(err)
 
-	var result OutputType
-	return result, resp, json.Unmarshal(b, &result)
+	s.insertFakeUsers()
+
+	s.Require().NoError(os.Setenv("POSTGRES_DSN", DSN))
+	s.Require().NoError(os.Setenv("PORT", DefaultAppPort))
+	s.Require().NoError(os.Setenv("CONFIG", DefaultConfigPath))
+	s.Require().NoError(os.Setenv("DBPASSWORD", DefaultPassword))
+
+	var command commands.Command
+	go func() {
+		s.Require().NoError(command.Init())
+		s.Require().ErrorIs(command.Start(), http.ErrServerClosed)
+	}()
+	s.command = &command
+
+	time.Sleep(1 * time.Second)
+}
+
+func (s *BaseSuite) TearDownSuite() {
+	s.Require().NoError(s.command.Cleanup())
+	s.Require().NoError(s.postgres.Stop())
 }
 
 func sendRequest[OutputType any](
@@ -93,6 +178,25 @@ func sendRequest[OutputType any](
 	}
 
 	return doRequest[OutputType](req)
+}
+
+func doRequest[OutputType any](r *http.Request) (respBody OutputType, resp *http.Response, err error) {
+	resp, err = http.DefaultClient.Do(r)
+	if err != nil {
+		return respBody, nil, err
+	}
+
+	defer func() {
+		err = resp.Body.Close()
+	}()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return respBody, nil, err
+	}
+
+	var result OutputType
+	return result, resp, json.Unmarshal(b, &result)
 }
 
 func sendPost[OutputType any](

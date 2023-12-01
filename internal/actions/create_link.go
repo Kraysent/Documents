@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -16,29 +17,32 @@ import (
 func CreateLink(
 	ctx context.Context, repo *core.Repository, r schema.CreateLinkRequest,
 ) (*schema.CreateLinkResponse, error) {
+	expiryDate, err := time.Parse(time.RFC3339, r.ExpiryDate)
+	if err != nil {
+		return nil, web.ValidationError(err)
+	}
+
+	if expiryDate.Before(time.Now()) {
+		return nil, web.ValidationError(fmt.Errorf("expiry date must be after current time"))
+	}
+
 	documentID, err := uuid.Parse(r.DocumentID)
 	if err != nil {
 		return nil, web.ValidationError(err)
 	}
 
-	data, err := repo.Storages.Documents.GetDocuments(ctx,
-		documents.GetDocumentsRequest{Fields: map[string]any{documents.ColumnID: documentID}},
+	data, err := repo.Storages.Documents.GetDocument(ctx,
+		documents.GetDocumentRequest{ID: documentID},
 	)
+	if err == sql.ErrNoRows {
+		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.DocumentID))
+	}
 	if err != nil {
 		return nil, web.DatabaseError(err)
 	}
 
-	if len(data.Documents) != 1 {
-		return nil, web.InternalError(fmt.Errorf("database returned %d rows, expected 1", len(data.Documents)))
-	}
-
-	if data.Documents[0].Owner != r.UserID {
-		return nil, web.AuthorizationError(fmt.Errorf("user does not have document with this ID"))
-	}
-
-	expiryDate, err := time.Parse(time.RFC3339, r.ExpiryDate)
-	if err != nil {
-		return nil, web.ValidationError(err)
+	if data.Document.Owner != r.UserID {
+		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.DocumentID))
 	}
 
 	result, err := repo.Storages.Links.CreateLink(ctx, links.CreateLinkRequest{

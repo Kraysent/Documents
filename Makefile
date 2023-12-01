@@ -6,7 +6,7 @@ build:
 	go build .
 
 test: build
-	go test ./tests
+	go test ./tests -v
 
 style:
 	errcheck .
