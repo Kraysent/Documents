@@ -8,7 +8,7 @@ type DisableLinkRequest struct {
 	ID string `schema:"id"`
 }
 
-func (r *DisableLinkRequest) Validate() error {
+func (r DisableLinkRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.StringNotEmpty(r.ID),
 		validation.IsUUID(r.ID),

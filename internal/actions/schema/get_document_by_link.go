@@ -8,7 +8,7 @@ type GetDocumentByLinkRequest struct {
 	ID string `schema:"id"`
 }
 
-func (r *GetDocumentByLinkRequest) Validate() error {
+func (r GetDocumentByLinkRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.StringNotEmpty(r.ID),
 		validation.IsUUID(r.ID),

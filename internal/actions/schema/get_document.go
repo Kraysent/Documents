@@ -8,7 +8,7 @@ type GetDocumentByIDRequest struct {
 	ID string `schema:"id"`
 }
 
-func (r *GetDocumentByIDRequest) Validate() error {
+func (r GetDocumentByIDRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.StringNotEmpty(r.ID),
 	)

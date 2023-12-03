@@ -10,7 +10,7 @@ type CreateLinkRequest struct {
 	ExpiryDate string `json:"expiry_date"`
 }
 
-func (r *CreateLinkRequest) Validate() error {
+func (r CreateLinkRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.IsUUID(r.DocumentID),
 		validation.IsISO8601(r.ExpiryDate),

@@ -216,3 +216,29 @@ func (s *LinkSuite) TestDisableAlreadyDisabledLink() {
 	s.Require().NoError(err)
 	s.Require().Equal(http.StatusBadRequest, resp.StatusCode)
 }
+
+func (s *LinkSuite) TestDeleteDocumentWithLink() {
+	token := s.authorize(3)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Some cool document name",
+		"description": "even cooler description",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID := respBody["data"]["id"].(string)
+
+	respBody, resp, err = sendPost[map[string]map[string]any](ctx, "/api/v1/link", map[string]any{
+		"document_id": documentID,
+		"expiry_date": time.Now().Add(10 * time.Hour).Format(time.RFC3339),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	respBody, resp, err = sendDelete[map[string]map[string]any](
+		ctx, "/api/v1/document", map[string]string{"id": documentID}, token,
+	)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+}

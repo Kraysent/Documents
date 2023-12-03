@@ -9,7 +9,7 @@ type InsertDocumentRequest struct {
 	Description string `json:"description"`
 }
 
-func (r *InsertDocumentRequest) Validate() error {
+func (r InsertDocumentRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.StringNotEmpty(r.Name),
 	)

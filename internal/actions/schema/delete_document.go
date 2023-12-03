@@ -8,7 +8,7 @@ type DeleteDocumentRequest struct {
 	ID string `schema:"id"`
 }
 
-func (r *DeleteDocumentRequest) Validate() error {
+func (r DeleteDocumentRequest) Validate() error {
 	rules := validation.NewRules(
 		validation.StringNotEmpty(r.ID),
 	)

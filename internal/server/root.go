@@ -6,13 +6,14 @@ import (
 	"documents/internal/core"
 	"documents/internal/library/web"
 	"documents/internal/log"
+	v1 "documents/internal/server/handlers/v1"
 	"go.uber.org/zap"
 )
 
 type CommonHandler struct {
 	Path     string
 	Method   string
-	Function func(*http.Request, *core.Repository) (any, error)
+	Function v1.Handler
 }
 
 func (c CommonHandler) GetHandler(repo *core.Repository) http.HandlerFunc {

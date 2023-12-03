@@ -18,6 +18,12 @@ import (
 func CreateLink(
 	ctx context.Context, repo *core.Repository, r schema.CreateLinkRequest,
 ) (*schema.CreateLinkResponse, error) {
+	userID := repo.SessionManager.GetInt64(ctx, "user_id")
+	if userID == 0 {
+		return nil, web.AuthorizationError(fmt.Errorf("failed to authorize"))
+	}
+	r.UserID = userID
+
 	expiryDate, err := time.Parse(time.RFC3339, r.ExpiryDate)
 	if err != nil {
 		return nil, web.ValidationError(err)

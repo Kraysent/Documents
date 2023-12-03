@@ -2,7 +2,7 @@ package schema
 
 type GetUserDocumentsRequest struct{}
 
-func (r *GetUserDocumentsRequest) Validate() error {
+func (r GetUserDocumentsRequest) Validate() error {
 	return nil
 }
 
