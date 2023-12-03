@@ -2,6 +2,8 @@ package actions
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -22,6 +24,9 @@ func GetDocumentByLink(
 	}
 
 	result, err := repo.Storages.Links.GetLink(ctx, links.GetLinkRequest{ID: id})
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, web.NotFoundError(fmt.Errorf("active user does not have link with ID %s", r.ID))
+	}
 	if err != nil {
 		return nil, web.DatabaseError(err)
 	}

@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"documents/internal/actions/schema"
@@ -26,7 +27,7 @@ func DeleteDocument(
 	}
 
 	res, err := repo.Storages.Documents.GetDocument(ctx, documents.GetDocumentRequest{ID: id})
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.ID))
 	}
 	if res.Document.Owner != userID {

@@ -61,7 +61,7 @@ func (s *linkStorageImpl) SetLinkStatus(
 	if err != nil {
 		return nil, err
 	}
-	if n != 0 {
+	if n == 0 {
 		return nil, fmt.Errorf("error during setting status: updated %d rows", n)
 	}
 

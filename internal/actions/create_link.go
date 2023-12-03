@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -34,7 +35,7 @@ func CreateLink(
 	data, err := repo.Storages.Documents.GetDocument(ctx,
 		documents.GetDocumentRequest{ID: documentID},
 	)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, web.NotFoundError(fmt.Errorf("active user does not have document with ID %s", r.DocumentID))
 	}
 	if err != nil {
