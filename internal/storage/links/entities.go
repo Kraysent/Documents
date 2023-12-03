@@ -26,7 +26,7 @@ type Link struct {
 	ID           uuid.UUID `db:"id"`
 	DocumentID   uuid.UUID `db:"document_id"`
 	CreationDate time.Time `db:"creation_dt"`
-	ExpiryDate   time.Time `db:"expiry_date"`
+	ExpiryDate   time.Time `db:"expiry_dt"`
 	Status       Status    `db:"status"`
 }
 

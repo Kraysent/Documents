@@ -33,13 +33,14 @@ CREATE TABLE IF NOT EXISTS sessions
 CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions (expiry);
 -- End;
 
+DROP TYPE IF EXISTS link_status;
 CREATE TYPE link_status AS ENUM ('enabled', 'disabled');
 
 CREATE TABLE documents.t_link
 (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     document_id uuid NOT NULL REFERENCES documents.t_document (id),
-    creation_dt timestamp NOT NULL DEFAULT now(),
-    expiry_dt timestamp NOT NULL,
+    creation_dt timestamptz NOT NULL DEFAULT now(),
+    expiry_dt timestamptz NOT NULL,
     status link_status NOT NULL DEFAULT 'enabled'
 );

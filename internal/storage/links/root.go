@@ -93,7 +93,8 @@ func (s *linkStorageImpl) GetLinks(
 			Where(libstorage.SqAnd(request.Fields)).
 			OrderBy(request.OrderByField).
 			Offset(request.PageSize*request.PageNumber).
-			Limit(request.PageSize),
+			Limit(request.PageSize).
+			PlaceholderFormat(sq.Dollar),
 	)
 	if err != nil {
 		return nil, err

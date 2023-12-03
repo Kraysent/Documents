@@ -63,5 +63,10 @@ func GetHandlers() []CommonHandler {
 			Method:   http.MethodPost,
 			Function: v1.CreateLink,
 		},
+		{
+			Path:     "/api/v1/link",
+			Method:   http.MethodGet,
+			Function: v1.GetDocumentByLink,
+		},
 	}
 }
