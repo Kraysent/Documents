@@ -143,3 +143,76 @@ func (s *LinkSuite) TestGetDocumentByLinkHappyPath() {
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 	s.Require().Equal("Some cool document name", respBody["data"]["name"])
 }
+
+func (s *LinkSuite) TestGetDocumentByLinkDisabledLink() {
+	token := s.authorize(3)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Some cool document name",
+		"description": "even cooler description",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	respBody, resp, err = sendPost[map[string]map[string]any](ctx, "/api/v1/link", map[string]any{
+		"document_id": respBody["data"]["id"],
+		"expiry_date": time.Now().Add(10 * time.Hour).Format(time.RFC3339),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	_, resp, err = sendDelete[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+		"id": respBody["data"]["id"].(string),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	respBody, resp, err = sendGet[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+		"id": respBody["data"]["id"].(string),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *LinkSuite) TestDisableLinkNoSuchLink() {
+	token := s.authorize(3)
+	ctx := context.Background()
+
+	_, resp, err := sendDelete[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+		"id": "10101010-9fa0-9fa0-9fa0-9ce9ce9ce9ce",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *LinkSuite) TestDisableAlreadyDisabledLink() {
+	token := s.authorize(3)
+	ctx := context.Background()
+
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Some cool document name",
+		"description": "even cooler description",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	respBody, resp, err = sendPost[map[string]map[string]any](ctx, "/api/v1/link", map[string]any{
+		"document_id": respBody["data"]["id"],
+		"expiry_date": time.Now().Add(10 * time.Hour).Format(time.RFC3339),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	_, resp, err = sendDelete[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+		"id": respBody["data"]["id"].(string),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	_, resp, err = sendDelete[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+		"id": respBody["data"]["id"].(string),
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusBadRequest, resp.StatusCode)
+}

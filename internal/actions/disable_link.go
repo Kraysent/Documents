@@ -45,6 +45,9 @@ func DisableLink(
 	if docResult.Document.Owner != userID {
 		return nil, web.NotFoundError(fmt.Errorf("active user does not have link with ID %s", r.ID))
 	}
+	if linkResult.Link.Status != links.StatusEnabled {
+		return nil, web.ValidationError(fmt.Errorf("link already disabled"))
+	}
 
 	_, err = repo.Storages.Links.SetLinkStatus(ctx, links.SetLinkStatusRequest{
 		ID:     linkID,

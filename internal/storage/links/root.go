@@ -2,6 +2,7 @@ package links
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	libstorage "documents/internal/library/storage"
@@ -78,7 +79,7 @@ func (s *linkStorageImpl) GetLink(
 		return nil, err
 	}
 	if n := len(res.Links); n != 1 {
-		return nil, fmt.Errorf("unable to collect row, found %d rows", n)
+		return nil, sql.ErrNoRows
 	}
 
 	return &GetLinkResult{Link: res.Links[0]}, nil
