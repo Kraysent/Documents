@@ -1,9 +1,11 @@
 import Document from "interactions/backend/entities";
 import { useEffect, useState } from "react";
+import BackendError from "interactions/backend/error";
 
 export interface BackendClient {
   getDocumentsList(): [Document[], string, boolean, any];
   getDocument(id: string): [Document, string, boolean, any];
+  getDocumentViaLink(id: string): [Document, boolean, any];
 }
 
 class GetUserDocumentsResponse {
@@ -53,25 +55,31 @@ class BackendClientImpl {
     const [doc, setDoc] = useState<Document>(new Document("", "", 1, ""));
     const [mode, setMode] = useState("noauth");
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<BackendError | null>(null);
 
     useEffect(() => {
       fetch(`${this.host}/v1/document/id?id=${id}`, { credentials: "include" })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error(
-              `This is an HTTP error: The status is ${response.status}`
-            );
-          }
+          return response.text();
+        })
+        .then((rawResp) => {
+          console.log(rawResp);
 
-          return response.json();
+          return JSON.parse(rawResp);
         })
         .then((data) => {
-          let docResponse: Document = data.data;
+          if (data.data != undefined) {
+            let docResponse: Document = data.data;
 
-          setLoading(false);
-          setDoc(docResponse);
-          setMode("auth");
+            setLoading(false);
+            setDoc(docResponse);
+            setMode("auth");
+          } else if (data.code != undefined) {
+            let errResponse: BackendError = data;
+
+            setError(errResponse);
+            setLoading(false);
+          }
         })
         .catch((err) => {
           setError(err);
@@ -81,6 +89,44 @@ class BackendClientImpl {
     }, []);
 
     return [doc, mode, loading, error];
+  }
+
+  getDocumentViaLink(id: string): [Document, boolean, any] {
+    const [doc, setDoc] = useState<Document>(new Document("", "", 1, ""));
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<BackendError | null>(null);
+
+    useEffect(() => {
+      fetch(`${this.host}/v1/link?id=${id}`, { credentials: "include" })
+        .then((response) => {
+          return response.text();
+        })
+        .then((rawResp) => {
+          console.log(rawResp);
+
+          return JSON.parse(rawResp);
+        })
+        .then((data) => {
+          if (data.data != undefined) {
+            let docResponse: Document = data.data;
+
+            setLoading(false);
+            setDoc(docResponse);
+          } else if (data.code != undefined) {
+            let errResponse: BackendError = data;
+
+            setError(errResponse);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+          console.error(err);
+        });
+    }, []);
+
+    return [doc, loading, error];
   }
 }
 
