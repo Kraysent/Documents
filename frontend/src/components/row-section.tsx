@@ -1,22 +1,25 @@
 import React from "react";
-import "components/row-section.scss"
+import "components/row-section.scss";
 
 interface RowSectionProps {
   flexSize: number;
   text: string;
   alignment: string;
+  shadowedText: boolean;
 }
 
 class RowSection extends React.Component<RowSectionProps> {
   public static defaultProps = {
     flexSize: 1,
     alignment: "left",
+    shadowedText: false,
   };
 
   render() {
     const style = {
       flex: this.props.flexSize,
-      "text-align": this.props.alignment,
+      textAlign: this.props.alignment,
+      color: this.props.shadowedText ? "grey" : "black",
     } as React.CSSProperties;
 
     return (

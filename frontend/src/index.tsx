@@ -5,8 +5,8 @@ import Root from "routes/Root";
 import ErrorPage from "routes/error";
 import reportWebVitals from "reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import DocumentsPage from "routes/Document";
 import SharedDocumentPage from "routes/SharedDocumentPage";
+import DocumentViewPage from "routes/DocumentPage";
 
 let apiHost!: string;
 let host!: string;
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   },
   {
     path: "document/:documentID",
-    element: <DocumentsPage apiHost={apiHost} />,
+    element: <DocumentViewPage host={host} apiHost={apiHost} />,
   },
   {
     path: "share/:linkID",

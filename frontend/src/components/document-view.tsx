@@ -1,5 +1,5 @@
 import React from "react";
-import RowSection from "components/row";
+import RowSection from "components/row-section";
 
 interface DocumentAttributeProps {
   field: string;
@@ -29,7 +29,9 @@ const DocumentBlock: React.FC<DocumentBlockProps> = (
   return (
     <div className="individual-document-block">
       <DocumentAttribute field="Name" value={props.name} />
-      <DocumentAttribute field="Description" value={props.description} />
+      {props.description != "" && (
+        <DocumentAttribute field="Description" value={props.description} />
+      )}
       <DocumentAttribute field="Version" value={props.version} />
     </div>
   );

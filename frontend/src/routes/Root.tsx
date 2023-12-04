@@ -1,10 +1,9 @@
+import DocumentRow from "components/document-row";
 import Heading from "components/heading";
 import "components/heading.scss";
-import RowSection from "components/row";
 import { createBackendClient } from "interactions/backend/root";
 import React from "react";
 import GoogleButton from "react-google-button";
-import { Link } from "react-router-dom";
 import "routes/Root.scss";
 import "routes/documents-list-block.scss";
 
@@ -46,51 +45,6 @@ const LoginSection: React.FC<RootProps> = (props: RootProps) => {
   );
 };
 
-class Document {
-  id: string;
-  name: string;
-  version: number;
-  description: string;
-
-  constructor(id: string, name: string, version: number, description: string) {
-    this.id = id;
-    this.name = name;
-    this.version = version;
-    this.description = description;
-  }
-}
-
-interface DocumentBlockProps {
-  key: number;
-  document: Document;
-  host: string;
-}
-
-const DocumentBlock: React.FC<DocumentBlockProps> = (
-  props: DocumentBlockProps
-) => {
-  return (
-    <Link
-      to={props.host + "/document/" + props.document.id}
-      style={{ textDecoration: "none" }}
-    >
-      <div className="document-block" key={props.key}>
-        <RowSection text={props.document.name} alignment="center" />
-        <RowSection
-          flexSize={0.1}
-          text={props.document.version.toString()}
-          alignment="center"
-        />
-        <RowSection
-          flexSize={2}
-          text={props.document.description}
-          alignment="right"
-        />
-      </div>
-    </Link>
-  );
-};
-
 const App: React.FC<RootProps> = (props: RootProps) => {
   let client = createBackendClient(props.apiHost);
   let [docs, mode, loading, error] = client.getDocumentsList();
@@ -107,7 +61,7 @@ const App: React.FC<RootProps> = (props: RootProps) => {
       {mode == "auth" && (
         <div className="document-container">
           {docs.map((doc, i) => {
-            return <DocumentBlock host={props.host} key={i} document={doc} />;
+            return <DocumentRow host={props.host} key={i} document={doc} />;
           })}
         </div>
       )}

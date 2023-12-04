@@ -1,4 +1,4 @@
-import DocumentBlock from "components/document-block";
+import DocumentBlock from "components/document-view";
 import Heading from "components/heading";
 import { createBackendClient } from "interactions/backend/root";
 import React from "react";
