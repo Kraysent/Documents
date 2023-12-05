@@ -242,3 +242,177 @@ func (s *LinkSuite) TestDeleteDocumentWithLink() {
 	s.Require().NoError(err)
 	s.Require().Equal(http.StatusOK, resp.StatusCode)
 }
+
+func (s *LinkSuite) addDefaultLinks(ctx context.Context, token string, enabledNumber, disabledNumber int) (documentID string) {
+	respBody, resp, err := sendPost[map[string]map[string]any](ctx, "/api/v1/document", map[string]any{
+		"name":        "Some cool document name",
+		"description": "even cooler description",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+	documentID = respBody["data"]["id"].(string)
+
+	for i := 0; i < enabledNumber; i++ {
+		respBody, resp, err = sendPost[map[string]map[string]any](ctx, "/api/v1/link", map[string]any{
+			"document_id": documentID,
+			"expiry_date": time.Now().Add(time.Duration(enabledNumber-i) * time.Hour).Format(time.RFC3339),
+		}, token)
+		s.Require().NoError(err)
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+	}
+
+	for i := 0; i < disabledNumber; i++ {
+		respBody, resp, err = sendPost[map[string]map[string]any](ctx, "/api/v1/link", map[string]any{
+			"document_id": documentID,
+			"expiry_date": time.Now().Add(time.Duration(disabledNumber-i) * time.Hour).Format(time.RFC3339),
+		}, token)
+		s.Require().NoError(err)
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+		_, resp, err = sendDelete[map[string]map[string]any](ctx, "/api/v1/link", map[string]string{
+			"id": respBody["data"]["id"].(string),
+		}, token)
+		s.Require().NoError(err)
+		s.Require().Equal(http.StatusOK, resp.StatusCode)
+	}
+
+	return documentID
+}
+
+func (s *LinkSuite) TestGetLinksPageSizeTooBig() {
+	token := s.authorize(4)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 10, 0)
+
+	_, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+		"page_size":   "1000",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusBadRequest, resp.StatusCode)
+}
+
+func (s *LinkSuite) TestGetLinksInvalidStatus() {
+	token := s.authorize(5)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 10, 0)
+
+	_, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+		"page_size":   "10",
+		"status":      "very_much_nonexistent_status",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusBadRequest, resp.StatusCode)
+}
+
+func (s *LinkSuite) TestGetLinksWrongUser() {
+	token := s.authorize(6)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 10, 0)
+
+	token = s.authorize(5)
+	_, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusNotFound, resp.StatusCode)
+}
+
+func (s *LinkSuite) TestGetLinksHappyPathAllResultsOnSinglePage() {
+	token := s.authorize(7)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 10, 0)
+	respBody, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	res := respBody["data"]["links"].([]any)
+	s.Require().Len(res, 10)
+	for _, linkAny := range res {
+		link := linkAny.(map[string]any)
+		id := link["id"].(string)
+		_, err := uuid.Parse(id)
+		s.Require().NoError(err)
+	}
+}
+
+func (s *LinkSuite) TestGetLinksHappyPathAllResultsOnMultiplePages() {
+	token := s.authorize(8)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 30, 0)
+	respBody, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	res := respBody["data"]["links"].([]any)
+	s.Require().Len(res, 25)
+	for _, linkAny := range res {
+		link := linkAny.(map[string]any)
+		id := link["id"].(string)
+		_, err := uuid.Parse(id)
+		s.Require().NoError(err)
+	}
+
+	respBody, resp, err = sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+		"page":        "1",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	res = respBody["data"]["links"].([]any)
+	s.Require().Len(res, 5)
+	for _, linkAny := range res {
+		link := linkAny.(map[string]any)
+		id := link["id"].(string)
+		_, err := uuid.Parse(id)
+		s.Require().NoError(err)
+	}
+}
+
+func (s *LinkSuite) TestGetLinksHappyPathOnlyDisabledLinks() {
+	token := s.authorize(9)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 10, 8)
+	respBody, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+		"status":      "disabled",
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	res := respBody["data"]["links"].([]any)
+	s.Require().Len(res, 8)
+	for _, linkAny := range res {
+		link := linkAny.(map[string]any)
+		id := link["id"].(string)
+		_, err := uuid.Parse(id)
+		s.Require().NoError(err)
+	}
+}
+
+func (s *LinkSuite) TestGetLinksHappyPathNoLinks() {
+	token := s.authorize(9)
+	ctx := context.Background()
+
+	documentID := s.addDefaultLinks(ctx, token, 0, 0)
+	respBody, resp, err := sendGet[map[string]map[string]any](ctx, "/api/v1/links", map[string]string{
+		"document_id": documentID,
+	}, token)
+	s.Require().NoError(err)
+	s.Require().Equal(http.StatusOK, resp.StatusCode)
+
+	res := respBody["data"]["links"].([]any)
+	s.Require().Len(res, 0)
+}

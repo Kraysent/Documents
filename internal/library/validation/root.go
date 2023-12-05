@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/slices"
 )
 
 type Rule func() error
@@ -36,6 +38,34 @@ func IsISO8601(str string) Rule {
 		_, err := time.Parse(time.RFC3339, str)
 		if err != nil {
 			return NewValidationError(str, "string is not a valid ISO 8601 timestamp")
+		}
+
+		return nil
+	}
+}
+
+func In[T comparable](obj T, set []T) Rule {
+	return func() error {
+		if !slices.Contains(set, obj) {
+			return NewValidationError(obj, fmt.Sprintf("value not in a set: %v", set))
+		}
+
+		return nil
+	}
+}
+
+type Number interface {
+	constraints.Integer | constraints.Float
+}
+
+func IsBetween[T Number](obj T, left T, right T) Rule {
+	return func() error {
+		if obj < left {
+			return NewValidationError(obj, fmt.Sprintf("number is less than %d", left))
+		}
+
+		if obj > right {
+			return NewValidationError(obj, fmt.Sprintf("number is bigger than %d", right))
 		}
 
 		return nil

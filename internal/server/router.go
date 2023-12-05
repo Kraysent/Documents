@@ -89,5 +89,12 @@ func GetHandlers() []CommonHandler {
 				schema.DisableLinkRequest, schema.DisableLinkResponse,
 			](actions.DisableLink),
 		},
+		{
+			Path:   "/api/v1/links",
+			Method: http.MethodGet,
+			Function: v1.QueryHandler[
+				schema.GetLinksRequest, schema.GetLinksResponse,
+			](actions.GetLinks),
+		},
 	}
 }
