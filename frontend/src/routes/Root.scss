@@ -1,35 +1,38 @@
+@use "styles/colors" as clr;
+
 html,
 body {
-    height: 100%;
+  height: 100%;
+  background-color: clr.$dark-background;
 }
 
 .App {
-    text-align: center;
+  text-align: center;
 }
 
 .App-logo {
-    height: 40vmin;
-    pointer-events: none;
+  height: 40vmin;
+  pointer-events: none;
 }
 
 .textblock {
-    border: solid;
-    float: left;
-    width: 49%;
-    height: 93vh;
+  border: solid;
+  float: left;
+  width: 49%;
+  height: 93vh;
 }
 
 .login-section {
-    border: solid;
-    float: right;
-    width: 49%;
-    height: 93vh;
-    position: relative;
+  border: solid;
+  float: right;
+  width: 49%;
+  height: 93vh;
+  position: relative;
 }
 
 .google-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

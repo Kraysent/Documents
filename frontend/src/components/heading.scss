@@ -1,8 +1,9 @@
+@use "styles/colors" as clr;
+
 .heading {
   display: flex;
   align-items: center;
   font-size: x-large;
-  border: solid;
   height: 2em;
 }
 
@@ -12,7 +13,7 @@
   top: 0;
   left: 50%;
   width: 5em;
-  background-color: rgb(211, 243, 251);
+  background-color: clr.$dark-primary;
   padding: 5px;
   margin: 7px;
   border-radius: 7px;
@@ -20,10 +21,15 @@
   text-align: center;
 }
 
+.heading-box:hover {
+  transition: 200ms;
+  background-color: clr.$dark-primary-highlighted;
+}
+
 .leftheading {
   color: blue;
 }
 
 .rightheading {
-  color: cornflowerblue;
+  color: rgb(18, 41, 83);
 }

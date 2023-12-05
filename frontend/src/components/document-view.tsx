@@ -1,5 +1,6 @@
 import React from "react";
 import RowSection from "components/row-section";
+import "components/document-view.scss";
 
 interface DocumentAttributeProps {
   field: string;

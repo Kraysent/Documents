@@ -1,7 +1,20 @@
+@use "styles/colors" as clr;
+
 .document-block {
   border-radius: 5px;
+  margin: 5px;
+  padding: 10px;
+  margin-left: 1em;
+  margin-right: 1em;
+  background-color: clr.$dark-primary;
+  display: flex;
+  flex-direction: row;
+  height: 2em;
+  align-items: center;
 }
 
 .document-block:hover {
-  background-color: rgb(34, 187, 237);
+  cursor: pointer;
+  transition: 200ms;
+  background-color: clr.$dark-primary-highlighted;
 }

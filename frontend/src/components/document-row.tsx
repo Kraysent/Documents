@@ -56,7 +56,7 @@ class DocumentRow extends React.Component<DocumentRowProps> {
             <RowSection
               flexSize={2}
               text="No description"
-              shadowedText={true}
+              active={false}
               alignment="right"
             />
           )}

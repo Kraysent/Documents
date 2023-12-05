@@ -5,25 +5,30 @@ interface RowSectionProps {
   flexSize: number;
   text: string;
   alignment: string;
-  shadowedText: boolean;
+  active: boolean;
 }
 
 class RowSection extends React.Component<RowSectionProps> {
   public static defaultProps = {
     flexSize: 1,
     alignment: "left",
-    shadowedText: false,
+    active: true,
   };
 
   render() {
     const style = {
       flex: this.props.flexSize,
       textAlign: this.props.alignment,
-      color: this.props.shadowedText ? "grey" : "black",
     } as React.CSSProperties;
 
+    let className = "row-section";
+
+    if (!this.props.active) {
+      className = "row-section-inactive";
+    }
+
     return (
-      <div className="row-section" style={style}>
+      <div className={className} style={style}>
         {this.props.text}
       </div>
     );
