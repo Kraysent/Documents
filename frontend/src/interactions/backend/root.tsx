@@ -1,4 +1,4 @@
-import Document from "interactions/backend/entities";
+import { Document, Link } from "interactions/backend/entities";
 import { useEffect, useState } from "react";
 import BackendError from "interactions/backend/error";
 
@@ -6,6 +6,7 @@ export interface BackendClient {
   getDocumentsList(): [Document[], string, boolean, any];
   getDocument(id: string): [Document, string, boolean, any];
   getDocumentViaLink(id: string): [Document, boolean, any];
+  getLinksList(documentID: string): [Link[], boolean, any];
 }
 
 class GetUserDocumentsResponse {
@@ -127,6 +128,44 @@ class BackendClientImpl {
     }, []);
 
     return [doc, loading, error];
+  }
+
+  getLinksList(documentID: string): [Link[], boolean, any] {
+    const [links, setLinks] = useState<Link[] | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<BackendError | null>(null);
+
+    useEffect(() => {
+      fetch(`${this.host}/v1/links?document_id=${documentID}`, { credentials: "include" })
+        .then((response) => {
+          return response.text();
+        })
+        .then((rawResp) => {
+          console.log(rawResp);
+
+          return JSON.parse(rawResp);
+        })
+        .then((data) => {
+          if (data.data != undefined) {
+            let response: Link[] = data.data.links;
+
+            setLoading(false);
+            setLinks(response);
+          } else if (data.code != undefined) {
+            let errResponse: BackendError = data;
+
+            setError(errResponse);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+          console.error(err);
+        });
+    }, []);
+
+    return [links!!, loading, error];
   }
 }
 

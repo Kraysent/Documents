@@ -6,6 +6,7 @@ interface RowSectionProps {
   text: string;
   alignment: string;
   active: boolean;
+  inverted: boolean;
 }
 
 class RowSection extends React.Component<RowSectionProps> {
@@ -13,6 +14,7 @@ class RowSection extends React.Component<RowSectionProps> {
     flexSize: 1,
     alignment: "left",
     active: true,
+    inverted: false,
   };
 
   render() {
@@ -23,8 +25,12 @@ class RowSection extends React.Component<RowSectionProps> {
 
     let className = "row-section";
 
+    if (this.props.inverted) {
+      className += "-inverted";
+    }
+
     if (!this.props.active) {
-      className = "row-section-inactive";
+      className += "-inactive";
     }
 
     return (

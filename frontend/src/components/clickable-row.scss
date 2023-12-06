@@ -1,6 +1,6 @@
 @use "styles/colors" as clr;
 
-.document-block {
+.clickable-row {
   border-radius: 5px;
   margin: 5px;
   padding: 10px;
@@ -11,9 +11,10 @@
   flex-direction: row;
   height: 2em;
   align-items: center;
+  transition: 200ms;
 }
 
-.document-block:hover {
+.clickable-row:hover {
   cursor: pointer;
   transition: 200ms;
   background-color: clr.$dark-primary-highlighted;

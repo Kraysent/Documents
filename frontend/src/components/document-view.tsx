@@ -12,8 +12,13 @@ const DocumentAttribute: React.FC<DocumentAttributeProps> = (
 ) => {
   return (
     <div className="document-block-item">
-      <RowSection flexSize={1} text={props.field} />
-      <RowSection flexSize={5} text={props.value} alignment="center" />
+      <RowSection flexSize={1} text={props.field} inverted={true} />
+      <RowSection
+        flexSize={5}
+        text={props.value}
+        alignment="center"
+        inverted={true}
+      />
     </div>
   );
 };

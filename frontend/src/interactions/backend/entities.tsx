@@ -1,4 +1,4 @@
-class Document {
+export class Document {
   id: string;
   name: string;
   version: number;
@@ -12,4 +12,11 @@ class Document {
   }
 }
 
-export default Document;
+export class Link {
+  id: string;
+  document_id: string;
+  creation_date: string;
+  expiry_date: string;
+  status: string;
+}
+

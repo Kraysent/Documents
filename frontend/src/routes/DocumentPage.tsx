@@ -5,6 +5,7 @@ import { createBackendClient } from "interactions/backend/root";
 import React from "react";
 import { useParams } from "react-router-dom";
 import "routes/document.scss";
+import LinkRow from "components/links-row";
 
 interface DocumentsListSectionProps {
   host: string;
@@ -32,6 +33,33 @@ const DocumentsListSection: React.FC<DocumentsListSectionProps> = (
                 showDescription={false}
               />
             );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface LinksListSectionProps {
+  host: string;
+  apiHost: string;
+  documentID: string;
+}
+
+const LinksListSection: React.FC<LinksListSectionProps> = (
+  props: LinksListSectionProps
+) => {
+  let client = createBackendClient(props.apiHost);
+  let [links, loading, error] = client.getLinksList(props.documentID);
+
+  return (
+    <div>
+      {loading && <div>Loading....</div>}
+      {error && <div>There was an error {JSON.stringify(error)}</div>}
+      {links != null && (
+        <div>
+          {links.map((link, i) => {
+            return <LinkRow host={props.host} key={i} link={link} />;
           })}
         </div>
       )}
@@ -78,6 +106,8 @@ interface DocumentViewPageProps {
 const DocumentViewPage: React.FC<DocumentViewPageProps> = (
   props: DocumentViewPageProps
 ) => {
+  const { documentID } = useParams();
+
   return (
     <div>
       <Heading />
@@ -87,6 +117,13 @@ const DocumentViewPage: React.FC<DocumentViewPageProps> = (
         </div>
         <div style={{ flex: 3 }}>
           <DocumentContentSection apiHost={props.apiHost} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <LinksListSection
+            host={props.host}
+            apiHost={props.apiHost}
+            documentID={documentID!!}
+          />
         </div>
       </div>
     </div>

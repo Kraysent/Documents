@@ -8,6 +8,14 @@
   color: clr.$dark-text;
 }
 
+.row-section-inverted {
+  padding: 7px;
+  margin: 7px;
+  white-space: "nowrap";
+  overflow: "scroll";
+  color: clr.$dark-text-inverted;
+}
+
 .row-section-inactive {
   padding: 7px;
   margin: 7px;

@@ -4,9 +4,10 @@
   border-radius: 5px;
   margin: 5px;
   padding: 8px;
-  background-color: clr.$dark-primary;
+  background-color: clr.$dark-secondary;
   display: flex;
   flex-direction: row;
   height: 2em;
   align-items: center;
+  color: clr.$dark-text-inverted;
 }

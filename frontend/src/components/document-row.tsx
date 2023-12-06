@@ -1,6 +1,6 @@
 import React from "react";
 import RowSection from "components/row-section";
-import "components/document-row.scss";
+import "components/clickable-row.scss";
 
 class Document {
   id: string;
@@ -31,7 +31,7 @@ class DocumentRow extends React.Component<DocumentRowProps> {
   render() {
     return (
       <div
-        className="document-block"
+        className="clickable-row"
         onClick={() =>
           (window.location.href =
             this.props.host + "/document/" + this.props.document.id)
