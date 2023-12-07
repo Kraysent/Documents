@@ -6,11 +6,7 @@ build:
 	go build .
 
 test: build
-	go test ./tests -v
-
-style:
-	errcheck .
-	go vet
+	go test ./... -v
 
 build-docker:
 	docker build --network=host -t documents -f Dockerfile .

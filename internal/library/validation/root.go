@@ -61,11 +61,11 @@ type Number interface {
 func IsBetween[T Number](obj T, left T, right T) Rule {
 	return func() error {
 		if obj < left {
-			return NewValidationError(obj, fmt.Sprintf("number is less than %d", left))
+			return NewValidationError(obj, fmt.Sprintf("number is less than %v", left))
 		}
 
 		if obj > right {
-			return NewValidationError(obj, fmt.Sprintf("number is bigger than %d", right))
+			return NewValidationError(obj, fmt.Sprintf("number is bigger than %v", right))
 		}
 
 		return nil
