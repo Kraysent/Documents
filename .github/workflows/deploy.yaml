@@ -4,7 +4,6 @@ on: workflow_dispatch
 
 jobs:
   build-and-push-docker:
-    needs: build-and-test
     runs-on: ubuntu-latest
 
     steps:
