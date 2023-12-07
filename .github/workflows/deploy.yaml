@@ -1,5 +1,7 @@
 name: Deploy
 
+on: workflow_dispatch
+
 jobs:
   build-and-push-docker:
     needs: build-and-test
