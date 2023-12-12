@@ -6,6 +6,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import "routes/document.scss";
 import LinkRow from "components/links-row";
+import ErrorPopup from "components/error-popup";
 
 interface DocumentsListSectionProps {
   host: string;
@@ -21,7 +22,7 @@ const DocumentsListSection: React.FC<DocumentsListSectionProps> = (
   return (
     <div>
       {loading && <div>Loading....</div>}
-      {error && <div>There was an error {JSON.stringify(error)}</div>}
+      {error && <ErrorPopup error={error} />}
       {mode == "auth" && (
         <div>
           {docs.map((doc, i) => {
@@ -55,7 +56,7 @@ const LinksListSection: React.FC<LinksListSectionProps> = (
   return (
     <div>
       {loading && <div>Loading....</div>}
-      {error && <div>There was an error {JSON.stringify(error)}</div>}
+      {error && <ErrorPopup error={error} />}
       {links != null && (
         <div>
           {links.map((link, i) => {
@@ -86,7 +87,7 @@ const DocumentContentSection: React.FC<DocumentContentSectionProps> = (
   return (
     <div>
       {loading && <div>Loading....</div>}
-      {error && <div>There was an error {JSON.stringify(error)}</div>}
+      {error && <ErrorPopup error={error} />}
       {mode == "auth" && (
         <DocumentBlock
           name={doc.name}

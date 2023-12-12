@@ -5,16 +5,16 @@
   padding: 6px;
   height: 1.2em;
   transition: 500ms;
-}
 
-.copy-icon:hover {
-  transition: 500ms;
-  background-color: clr.$dark-accent;
-}
+  &:hover {
+    transition: 500ms;
+    background-color: clr.$dark-accent;
+  }
 
-.copy-icon:active {
-  transition: 50ms;
-  background-color: clr.$dark-accent;
-  height: 1em;
-  padding: calc(6px + 0.1em);
+  &:active {
+    transition: 50ms;
+    background-color: clr.$dark-accent;
+    height: 1em;
+    padding: calc(6px + 0.1em);
+  }
 }

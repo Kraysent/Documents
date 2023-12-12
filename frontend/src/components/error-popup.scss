@@ -1,0 +1,58 @@
+@use "styles/colors" as clr;
+
+.error-popup {
+  padding: 7px;
+  margin: 7px;
+  position: absolute;
+  width: 20%;
+  height: 20%;
+  overflow: scroll;
+  bottom: 1em;
+  right: 1em;
+  text-align: center;
+  border-radius: 5px;
+  background-color: clr.$dark-secondary;
+  color: clr.$dark-text-inverted;
+  animation: fade-in 1s;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.error-title {
+  flex: 5;
+}
+
+.close-button {
+  height: 2em;
+  width: 2em;
+  align-items: center;
+  display: flex;
+  border-radius: 5px;
+  border: none;
+  background-color: clr.$dark-secondary;
+  color: clr.$dark-text-inverted;
+
+  &:hover {
+    transition: 500ms;
+    background-color: clr.$dark-accent;
+    color: clr.$dark-text;
+    cursor: pointer;
+  }
+}
+
+.close-text {
+  flex: 1;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100;
+  }
+}

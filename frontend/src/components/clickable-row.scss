@@ -12,10 +12,10 @@
   height: 2em;
   align-items: center;
   transition: 200ms;
-}
 
-.clickable-row:hover {
-  cursor: pointer;
-  transition: 200ms;
-  background-color: clr.$dark-primary-highlighted;
+  &:hover {
+    cursor: pointer;
+    transition: 200ms;
+    background-color: clr.$dark-primary-highlighted;
+  }
 }

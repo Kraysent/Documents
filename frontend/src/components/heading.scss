@@ -19,11 +19,11 @@
   border-radius: 7px;
   cursor: pointer;
   text-align: center;
-}
 
-.heading-box:hover {
-  transition: 200ms;
-  background-color: clr.$dark-primary-highlighted;
+  &:hover {
+    transition: 200ms;
+    background-color: clr.$dark-primary-highlighted;
+  }
 }
 
 .leftheading {

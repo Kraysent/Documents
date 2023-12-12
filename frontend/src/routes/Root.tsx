@@ -1,4 +1,5 @@
 import DocumentRow from "components/document-row";
+import ErrorPopup from "components/error-popup";
 import Heading from "components/heading";
 import "components/heading.scss";
 import { createBackendClient } from "interactions/backend/root";
@@ -52,6 +53,7 @@ const App: React.FC<RootProps> = (props: RootProps) => {
   return (
     <div className="App">
       <Heading />
+      {error && <ErrorPopup error={error} />}
       {mode == "noauth" && (
         <div>
           <TextBlock />

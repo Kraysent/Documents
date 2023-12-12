@@ -1,4 +1,5 @@
 import DocumentBlock from "components/document-view";
+import ErrorPopup from "components/error-popup";
 import Heading from "components/heading";
 import { createBackendClient } from "interactions/backend/root";
 import React from "react";
@@ -24,7 +25,7 @@ const SharedDocumentPage: React.FC<SharedDocumentPageProps> = (
     <div>
       <Heading />
       {loading && <div>Loading....</div>}
-      {error && <div>There was an error {JSON.stringify(error)}</div>}
+      {error && <ErrorPopup error={error} />}
       {!error && (
         <DocumentBlock
           name={doc.name}
