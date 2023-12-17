@@ -56,6 +56,9 @@ func CreateLink(
 		DocumentID: documentID,
 		ExpiryDate: expiryDate,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &schema.CreateLinkResponse{ID: result.ID.String()}, nil
 }

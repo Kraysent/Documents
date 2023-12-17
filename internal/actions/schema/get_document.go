@@ -10,7 +10,7 @@ type GetDocumentByIDRequest struct {
 
 func (r GetDocumentByIDRequest) Validate() error {
 	rules := validation.NewRules(
-		validation.StringNotEmpty(r.ID),
+		validation.IsUUID(r.ID),
 	)
 
 	return rules.Validate()

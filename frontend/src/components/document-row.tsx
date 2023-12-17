@@ -37,28 +37,23 @@ class DocumentRow extends React.Component<DocumentRowProps> {
             this.props.host + "/document/" + this.props.document.id)
         }
       >
-        <RowSection text={this.props.document.name} alignment="center" />
-        <RowSection
-          flexSize={0.1}
-          text={this.props.document.version.toString()}
-          alignment="center"
-        />
+        <RowSection style={{ textAlign: "left", flex: 1 }}>
+          {this.props.document.name}
+        </RowSection>
+        <RowSection style={{ textAlign: "center", flex: 0.1 }}>
+          {this.props.document.version.toString()}
+        </RowSection>
         {this.props.showDescription &&
           this.props.document.description != "" && (
-            <RowSection
-              flexSize={2}
-              text={this.props.document.description}
-              alignment="right"
-            />
+            <RowSection style={{ textAlign: "right", flex: 2 }}>
+              {this.props.document.description}
+            </RowSection>
           )}
         {this.props.showDescription &&
           this.props.document.description == "" && (
-            <RowSection
-              flexSize={2}
-              text="No description"
-              active={false}
-              alignment="right"
-            />
+            <RowSection active={false} style={{ textAlign: "right", flex: 2 }}>
+              No description
+            </RowSection>
           )}
       </div>
     );

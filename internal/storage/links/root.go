@@ -92,7 +92,7 @@ func (s *linkStorageImpl) GetLinks(
 		sq.Select(ColumnID, ColumnDocumentID, ColumnCreationDate, ColumnExpiryDate, ColumnStatus).
 			From(TableName).
 			Where(libstorage.SqAnd(request.Fields)).
-			OrderBy(request.OrderByField).
+			OrderBy(fmt.Sprintf("%s DESC", request.OrderByField)).
 			Offset(request.PageSize*request.PageNumber).
 			Limit(request.PageSize).
 			PlaceholderFormat(sq.Dollar),

@@ -1,0 +1,43 @@
+@use "styles/colors" as clr;
+
+.create-button {
+  height: 2.5em;
+  margin: 6px;
+  border: none;
+  background-color: clr.$dark-primary;
+  border-radius: 4px;
+
+  &:hover {
+    transition: 500ms;
+    background-color: clr.$dark-primary-highlighted;
+  }
+}
+
+.expiry-field-name {
+  margin: 4px;
+  font-size: larger;
+}
+
+.expiry-input-field-box {
+  margin: 4px;
+  border: none;
+  border-radius: 5px;
+  background-color: clr.$dark-primary;
+  font-size: larger;
+  padding: 6px;
+  width: 15em;
+
+  &:hover {
+    transition: 500ms;
+    background-color: clr.$dark-primary-highlighted;
+  }
+
+  &:focus {
+    transition: 100ms;
+    background-color: clr.$dark-primary-highlighted;
+    
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: clr.$dark-accent;
+  }
+}

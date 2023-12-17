@@ -1,4 +1,4 @@
-interface BackendError {
+class BackendError extends Error {
   code: string;
   message: string;
 }

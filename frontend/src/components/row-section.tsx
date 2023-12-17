@@ -2,27 +2,22 @@ import React from "react";
 import "components/row-section.scss";
 
 interface RowSectionProps {
-  flexSize: number;
-  text: string;
-  alignment: string;
   active: boolean;
   inverted: boolean;
+  style: React.CSSProperties;
+  className: string;
+  children: any;
 }
 
 class RowSection extends React.Component<RowSectionProps> {
   public static defaultProps = {
-    flexSize: 1,
-    alignment: "left",
     active: true,
     inverted: false,
+    style: {},
+    className: "",
   };
 
   render() {
-    const style = {
-      flex: this.props.flexSize,
-      textAlign: this.props.alignment,
-    } as React.CSSProperties;
-
     let className = "row-section";
 
     if (this.props.inverted) {
@@ -33,9 +28,11 @@ class RowSection extends React.Component<RowSectionProps> {
       className += "-inactive";
     }
 
+    className += this.props.className;
+
     return (
-      <div className={className} style={style}>
-        {this.props.text}
+      <div className={className} style={this.props.style}>
+        {this.props.children}
       </div>
     );
   }

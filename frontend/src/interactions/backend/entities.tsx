@@ -20,3 +20,11 @@ export class Link {
   status: string;
 }
 
+export class LinkRequest {
+  document_id: string;
+  expiry_date: string;
+}
+
+export class LinkResponse {
+  id: string;
+}

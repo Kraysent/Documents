@@ -34,18 +34,34 @@ class LinkRow extends React.Component<LinkRowProps> {
       >
         {!isExpired && <CopyToClipboardIcon className="copy-icon" />}
         <RowSection
-          text={this.props.link.id.substring(0, 8)}
-          alignment="center"
+          style={{ textAlign: "center", flex: 1, overflow: "hidden" }}
           active={!isExpired}
-        />
+        >
+          {this.props.link.id.substring(0, 8)}
+        </RowSection>
         <RowSection
-          text={status}
-          alignment="center"
+          style={{ textAlign: "center", flex: 1, overflow: "hidden" }}
           active={!isExpired}
-        />
+        >
+          {status}
+        </RowSection>
       </div>
     );
   }
 }
 
-export default LinkRow;
+interface AddLinkRowProps {
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+}
+
+class AddLinkRow extends React.Component<AddLinkRowProps> {
+  render() {
+    return (
+      <div className="clickable-row" onClick={this.props.onClick}>
+        <RowSection style={{ textAlign: "center", flex: 1 }}>+</RowSection>
+      </div>
+    );
+  }
+}
+
+export { LinkRow, AddLinkRow };

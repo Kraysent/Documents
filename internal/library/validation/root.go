@@ -26,7 +26,7 @@ func IsUUID(str string) Rule {
 	return func() error {
 		_, err := uuid.Parse(str)
 		if err != nil {
-			return NewValidationError(str, "string is not a valid uuid")
+			return NewValidationError(str, "string is a valid uuid")
 		}
 
 		return nil
@@ -37,7 +37,7 @@ func IsISO8601(str string) Rule {
 	return func() error {
 		_, err := time.Parse(time.RFC3339, str)
 		if err != nil {
-			return NewValidationError(str, "string is not a valid ISO 8601 timestamp")
+			return NewValidationError(str, "string is a valid ISO 8601 timestamp")
 		}
 
 		return nil
@@ -47,7 +47,7 @@ func IsISO8601(str string) Rule {
 func In[T comparable](obj T, set []T) Rule {
 	return func() error {
 		if !slices.Contains(set, obj) {
-			return NewValidationError(obj, fmt.Sprintf("value not in a set: %v", set))
+			return NewValidationError(obj, fmt.Sprintf("value is in a set: %v", set))
 		}
 
 		return nil

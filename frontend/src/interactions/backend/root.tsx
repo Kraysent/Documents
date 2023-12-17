@@ -1,4 +1,9 @@
-import { Document, Link } from "interactions/backend/entities";
+import {
+  Document,
+  Link,
+  LinkRequest,
+  LinkResponse,
+} from "interactions/backend/entities";
 import { useEffect, useState } from "react";
 import BackendError from "interactions/backend/error";
 
@@ -7,6 +12,7 @@ export interface BackendClient {
   getDocument(id: string): [Document, string, boolean, any];
   getDocumentViaLink(id: string): [Document, boolean, any];
   getLinksList(documentID: string): [Link[], boolean, any];
+  createLink(request: LinkRequest): Promise<LinkResponse>;
 }
 
 class GetUserDocumentsResponse {
@@ -136,7 +142,9 @@ class BackendClientImpl {
     const [error, setError] = useState<BackendError | null>(null);
 
     useEffect(() => {
-      fetch(`${this.host}/v1/links?document_id=${documentID}`, { credentials: "include" })
+      fetch(`${this.host}/v1/links?document_id=${documentID}`, {
+        credentials: "include",
+      })
         .then((response) => {
           return response.text();
         })
@@ -166,6 +174,38 @@ class BackendClientImpl {
     }, []);
 
     return [links!!, loading, error];
+  }
+
+  async createLink(request: LinkRequest): Promise<LinkResponse> {
+    return fetch(`${this.host}/v1/link`, {
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify(request),
+    })
+      .then((response) => {
+        return response.text();
+      })
+      .then((rawResp) => {
+        console.log(rawResp);
+
+        return JSON.parse(rawResp);
+      })
+      .then((data) => {
+        if (data.code == undefined) {
+          let response: LinkResponse = data.data;
+
+          return response;
+        } else {
+          let errResponse: BackendError = data;
+
+          throw errResponse;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+
+        throw new Error(err);
+      });
   }
 }
 

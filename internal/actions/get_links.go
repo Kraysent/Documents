@@ -61,7 +61,7 @@ func GetLinks(
 		Fields:       fields,
 		PageSize:     r.PageSize,
 		PageNumber:   r.Page,
-		OrderByField: links.ColumnExpiryDate,
+		OrderByField: links.ColumnCreationDate,
 	})
 
 	var result schema.GetLinksResponse
