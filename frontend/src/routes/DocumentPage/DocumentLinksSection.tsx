@@ -19,11 +19,14 @@ const LinksListSection: React.FC<LinksListSectionProps> = (
 
   const [createLinkWindowOpen, setCreateLinkWindowOpen] = useState(false);
 
-  const handleCreate = async (expiry: string) => {
+  const handleCreate = async (expiry: number) => {
     try {
+      const now = new Date();
+      now.setDate(now.getDate() + expiry)
+
       let response = await client.createLink({
         document_id: props.documentID,
-        expiry_date: expiry,
+        expiry_date: now.toISOString(),
       });
 
       window.location.reload();
