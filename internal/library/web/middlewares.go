@@ -12,6 +12,7 @@ func CORSMiddleware(repo *core.Repository) func(http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", repo.Config.Server.CORSOrigin)
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin,access-control-allow-headers")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 			if r.Method == http.MethodOptions {
 				return
 			}

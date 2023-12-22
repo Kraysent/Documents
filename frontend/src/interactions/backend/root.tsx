@@ -1,4 +1,6 @@
 import {
+  DeleteLinkRequest,
+  DeleteLinkResponse,
   Document,
   Link,
   LinkRequest,
@@ -13,6 +15,7 @@ export interface BackendClient {
   getDocumentViaLink(id: string): [Document, boolean, any];
   getLinksList(documentID: string): [Link[], boolean, any];
   createLink(request: LinkRequest): Promise<LinkResponse>;
+  deleteLink(request: DeleteLinkRequest): Promise<DeleteLinkResponse>;
 }
 
 class GetUserDocumentsResponse {
@@ -193,6 +196,37 @@ class BackendClientImpl {
       .then((data) => {
         if (data.code == undefined) {
           let response: LinkResponse = data.data;
+
+          return response;
+        } else {
+          let errResponse: BackendError = data;
+
+          throw errResponse;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+
+        throw new Error(err);
+      });
+  }
+
+  async deleteLink(request: DeleteLinkRequest): Promise<DeleteLinkResponse> {
+    return fetch(`${this.host}/v1/link?id=${request.id}`, {
+      credentials: "include",
+      method: "DELETE",
+    })
+      .then((response) => {
+        return response.text();
+      })
+      .then((rawResp) => {
+        console.log(rawResp);
+
+        return JSON.parse(rawResp);
+      })
+      .then((data) => {
+        if (data.code == undefined) {
+          let response: DeleteLinkResponse = data.data;
 
           return response;
         } else {

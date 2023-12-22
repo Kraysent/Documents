@@ -3,6 +3,7 @@ import RowSection from "components/row-section";
 import "components/clickable-row.scss";
 import "components/links-row.scss";
 import { ReactComponent as CopyToClipboardIcon } from "assets/copy.svg";
+import { ReactComponent as DeleteIcon } from "assets/delete.svg";
 
 class Link {
   id: string;
@@ -16,6 +17,7 @@ interface LinkRowProps {
   key: number;
   host: string;
   link: Link;
+  onDelete: (link: Link) => void;
 }
 
 class LinkRow extends React.Component<LinkRowProps> {
@@ -23,28 +25,40 @@ class LinkRow extends React.Component<LinkRowProps> {
 
   render() {
     let isExpired = new Date(this.props.link.expiry_date) < new Date();
+    let isDisabled = this.props.link.status == "disabled";
+    let isActive = !isExpired && !isDisabled;
     let status = isExpired ? "expired" : this.props.link.status;
     let sharedLink = `${this.props.host}/share/${this.props.link.id}`;
+
+    const handleDeleteClick = () => {
+      return this.props.onDelete(this.props.link);
+    };
+
     return (
-      <div
-        className="clickable-row"
-        onClick={() => {
-          navigator.clipboard.writeText(sharedLink);
-        }}
-      >
-        {!isExpired && <CopyToClipboardIcon className="copy-icon" />}
+      <div className="clickable-row">
+        {isActive && (
+          <CopyToClipboardIcon
+            className="copy-icon"
+            onClick={() => {
+              navigator.clipboard.writeText(sharedLink);
+            }}
+          />
+        )}
         <RowSection
           style={{ textAlign: "center", flex: 1, overflow: "hidden" }}
-          active={!isExpired}
+          active={isActive}
         >
           {this.props.link.id.substring(0, 8)}
         </RowSection>
         <RowSection
           style={{ textAlign: "center", flex: 1, overflow: "hidden" }}
-          active={!isExpired}
+          active={isActive}
         >
           {status}
         </RowSection>
+        {isActive && (
+          <DeleteIcon className="delete-icon" onClick={handleDeleteClick} />
+        )}
       </div>
     );
   }

@@ -26,7 +26,7 @@ const DocumentViewPage: React.FC<DocumentViewPageProps> = (
         <div style={{ flex: 3 }}>
           <DocumentContentSection apiHost={props.apiHost} />
         </div>
-        <div style={{ flex: 1, overflow: "scroll" }}>
+        <div style={{ flex: 1.1, overflow: "scroll" }}>
           <LinksListSection
             host={props.host}
             apiHost={props.apiHost}

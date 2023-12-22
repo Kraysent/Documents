@@ -28,3 +28,11 @@ export class LinkRequest {
 export class LinkResponse {
   id: string;
 }
+
+export class DeleteLinkRequest {
+  id: string;
+}
+
+export class DeleteLinkResponse {
+  
+}

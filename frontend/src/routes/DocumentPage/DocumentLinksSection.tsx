@@ -1,5 +1,6 @@
 import ErrorPopup from "components/error-popup";
 import { AddLinkRow, LinkRow } from "components/links-row";
+import { Link } from "interactions/backend/entities";
 import { createBackendClient } from "interactions/backend/root";
 import React, { useState } from "react";
 import CreateLinkForm from "routes/DocumentPage/CreateLinkForm";
@@ -22,7 +23,7 @@ const LinksListSection: React.FC<LinksListSectionProps> = (
   const handleCreate = async (expiry: number) => {
     try {
       const now = new Date();
-      now.setDate(now.getDate() + expiry)
+      now.setDate(now.getDate() + expiry);
 
       let response = await client.createLink({
         document_id: props.documentID,
@@ -35,6 +36,12 @@ const LinksListSection: React.FC<LinksListSectionProps> = (
     }
 
     setCreateLinkWindowOpen(false);
+  };
+
+  const handleDelete = async (link: Link) => {
+    let response = await client.deleteLink({ id: link.id });
+
+    window.location.reload();
   };
 
   return (
@@ -51,7 +58,14 @@ const LinksListSection: React.FC<LinksListSectionProps> = (
         <div className="links-list-container">
           <AddLinkRow onClick={() => setCreateLinkWindowOpen(true)} />
           {links.map((link, i) => {
-            return <LinkRow host={props.host} key={i} link={link} />;
+            return (
+              <LinkRow
+                host={props.host}
+                key={i}
+                link={link}
+                onDelete={handleDelete}
+              />
+            );
           })}
         </div>
       )}

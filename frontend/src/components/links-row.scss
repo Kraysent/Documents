@@ -12,9 +12,24 @@
   }
 
   &:active {
-    transition: 50ms;
+    transition: 200ms;
+    background-color: clr.$dark-primary;
+  }
+}
+
+.delete-icon {
+  border-radius: 5px;
+  padding: 6px;
+  width: 1.4em;
+  height: 1.4em;
+
+  &:hover {
+    transition: 500ms;
     background-color: clr.$dark-accent;
-    height: 1em;
-    padding: calc(6px + 0.1em);
+  }
+
+  &:active {
+    transition: 200ms;
+    background-color: clr.$dark-primary;
   }
 }

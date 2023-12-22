@@ -1,5 +1,5 @@
 import BaseForm from "components/BaseForm";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import "routes/DocumentPage/CreateLinkForm.scss";
 
 interface CreateLinkForm {
